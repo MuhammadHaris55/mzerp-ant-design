@@ -15,7 +15,7 @@ use Illuminate\Http\Request as Req;
 
 class AccountGroupController extends Controller
 {
-    public function index()
+    public function index(Req $req)
     {
         //Validating request
         request()->validate([
@@ -39,7 +39,7 @@ class AccountGroupController extends Controller
 
         $balances = $query
             ->where('company_id', session('company_id'))
-            ->paginate(2)
+            ->paginate(10)
             ->withQueryString()
             ->through(
                 function ($accountgroup) {
@@ -56,7 +56,48 @@ class AccountGroupController extends Controller
                 }
             );
 
+        if(request()->has(
+            // ['select',
+            'search'
+            // ]
+            )){
+            // $users = App\Models\User::where($request->select,'like', '%'.$request->search.'%')->get();
+            // dd($req->search);
+            $acc_groups = AccountGroup::where(
+                // $req->select
+                'name'
+                ,'LIKE', '%'.$req->search.'%')
+            ->where('company_id', session('company_id'))
+            ->get();
+            $mapped_data = $acc_groups->map(function($acc_group, $key) {
+            return [
+                    'id' => $acc_group->id,
+                    'name' => $acc_group->name,
+                    'type_id' => $acc_group->type_id,
+                    'type_name' => $acc_group->accountType->name,
+                    'company_id' => $acc_group->company_id,
+                    'company_name' => $acc_group->company->name,
+                ];
+            });
+        }
+        else{
+            $acc_groups = AccountGroup::where('company_id', session('company_id'))->get();
+            $mapped_data = $acc_groups->map(function($acc_group, $key) {
+            return [
+                    'id' => $acc_group->id,
+                    'name' => $acc_group->name,
+                    'type_id' => $acc_group->type_id,
+                    'type_name' => $acc_group->accountType->name,
+                    'company_id' => $acc_group->company_id,
+                    'company_name' => $acc_group->company->name,
+                ];
+            });
+        }
+
+
+
         return Inertia::render('AccountGroups/Index', [
+            'acc_groups' => $mapped_data,
             'filters' => request()->all(['search', 'field', 'direction']),
             'balances' => $balances,
             'can' => [

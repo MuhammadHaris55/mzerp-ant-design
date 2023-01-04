@@ -164,6 +164,59 @@
               </tr>
             </tbody>
           </table>
+          <br />
+          <InputSearch
+            v-model:value="search"
+            placeholder="input search text"
+            style="width: 200px"
+            @search="onSearch"
+          />
+          <Table
+            :columns="columns"
+            :data-source="acc_groups"
+            :loading="loading"
+            class="mt-2"
+            size="small"
+          >
+            <template #bodyCell="{ column }">
+              <template v-if="column.key === 'actions'">
+                <!-- <td
+                  v-if="can['edit'] || can['delete']"
+                  style="width: 40%"
+                  class="px-4 border text-center"
+                > -->
+                <button
+                  class="
+                    border
+                    bg-indigo-300
+                    rounded-xl
+                    px-4
+                    m-1
+                    hover:text-white hover:bg-indigo-400
+                  "
+                  @click="edit(item.id)"
+                  v-if="can['edit']"
+                >
+                  <span>Edit</span>
+                </button>
+                <button
+                  class="
+                    border
+                    bg-red-500
+                    rounded-xl
+                    px-4
+                    m-1
+                    hover:text-white hover:bg-red-600
+                  "
+                  @click="destroy(item.id)"
+                >
+                  <!-- v-if="item.delete && can['delete']" -->
+                  <span>Delete</span>
+                </button>
+                <!-- </td> -->
+              </template>
+            </template>
+          </Table>
         </div>
         <paginator class="mt-6" :balances="balances" />
       </div>
@@ -178,6 +231,10 @@ import Paginator from "@/Layouts/Paginator";
 import { pickBy } from "lodash";
 import { throttle } from "lodash";
 import Multiselect from "@suadelabs/vue3-multiselect";
+import { ref } from "vue";
+import { Inertia } from "@inertiajs/inertia";
+import { Table, Select, InputSearch } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
 
 export default {
   components: {
@@ -187,6 +244,8 @@ export default {
     throttle,
     pickBy,
     Multiselect,
+    Table,
+    InputSearch,
   },
 
   props: {
@@ -197,6 +256,7 @@ export default {
     company: Object,
     exists: Object,
     can: Object,
+    acc_groups: Object,
   },
 
   data() {
@@ -204,6 +264,53 @@ export default {
       co_id: this.$page.props.co_id,
       co_id: this.company,
       options: this.companies,
+      search: "",
+
+      columns: [
+        {
+          title: "ID",
+          dataIndex: "id",
+          // sorter: (a, b) => a.id - b.id,
+          width: "10%",
+        },
+        {
+          title: "Group Name",
+          dataIndex: "name",
+          // sorter: (a, b) => {
+          //     const nameA = a.name.toUpperCase();
+          //     const nameB = b.name.toUpperCase();
+          //     if (nameA < nameB) {
+          //         return -1;
+          //     }
+          //     if (nameA > nameB) {
+          //         return 1;
+          //     }
+          //     return 0;
+          //     },
+          width: "20%",
+        },
+        {
+          title: "Group Type",
+          dataIndex: "type_name",
+        },
+        {
+          title: "Company Name",
+          dataIndex: "company_name",
+        },
+        {
+          title: "Actions",
+          dataIndex: "actions",
+          key: "actions",
+        },
+      ],
+
+      // const options = [{
+      //     value: 'name',
+      //     label: 'Name',
+      //   }, {
+      //     value: 'email',
+      //     label: 'Email',
+      // }],
 
       params: {
         search: this.filters.search,
@@ -214,6 +321,17 @@ export default {
   },
 
   methods: {
+    onSearch() {
+      this.$inertia.get(
+        route("accountgroups"),
+        {
+          //   select: select.value,
+          // search: search.value
+          search: this.search,
+        },
+        { replace: true, preserveState: true }
+      );
+    },
     create() {
       this.$inertia.get(route("accountgroups.create"));
     },
