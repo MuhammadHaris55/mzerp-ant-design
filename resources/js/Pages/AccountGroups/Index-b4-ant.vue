@@ -4,17 +4,18 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-xl text-white my-2">Account Groups</h2>
         <div class="justify-end">
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
@@ -204,6 +205,8 @@ export default {
       co_id: this.$page.props.co_id,
       co_id: this.company,
       options: this.companies,
+      search: "",
+      selected: this.company.name,
 
       params: {
         search: this.filters.search,

@@ -8,11 +8,43 @@ use App\Models\DocumentType;
 use App\Models\Company;
 use App\Models\Document;
 use Inertia\Inertia;
+use Illuminate\Http\Request as Req;
 
 class DocumentTypeController extends Controller
 {
     public function index()
     {
+        if(request()->has(
+            // ['select', 'search']
+            'search'
+            ))
+        {
+            $obj_data = DocumentType::where(
+                // $req->select
+                'name'
+                ,'LIKE', '%'.$req->search.'%')
+            ->where('company_id', session('company_id'))
+            ->get();
+            $mapped_data = $obj_data->map(function($acc_group, $key) {
+            return [
+                    'id' => $doc_type->id,
+                    'name' => $doc_type->name,
+                    'prefix' => $doc_type->prefix,
+                    'delete' => Document::where('type_id', $doc_type->id)->first() ? false : true,
+                ];
+            });
+        }
+        else{
+            $obj_data = DocumentType::where('company_id', session('company_id'))->get();
+            $mapped_data = $obj_data->map(function($doc_type, $key) {
+            return [
+                    'id' => $doc_type->id,
+                    'name' => $doc_type->name,
+                    'prefix' => $doc_type->prefix,
+                    'delete' => Document::where('type_id', $doc_type->id)->first() ? false : true,
+                ];
+            });
+        }
 
         $query = DocumentType::query();
 
@@ -29,6 +61,7 @@ class DocumentTypeController extends Controller
                         'delete' => Document::where('type_id', $doc_type->id)->first() ? false : true,
                     ];
                 }),
+            'mapped_data' => $mapped_data,
             'company' => Company::where('id', session('company_id'))->first(),
             'companies' => auth()->user()->companies,
             'can' => [

@@ -17,59 +17,17 @@ class AccountGroupController extends Controller
 {
     public function index(Req $req)
     {
-        //Validating request
-        request()->validate([
-            'direction' => ['in:asc,desc'],
-            'field' => ['in:name,email']
-        ]);
-
-        //Searching request
-        $query = AccountGroup::query();
-        if (request('search')) {
-            $query->where('name', 'LIKE', '%' . request('search') . '%');
-        }
-
-        // // Ordering request
-        // if (request()->has(['field', 'direction'])) {
-        //     $query->orderBy(
-        //         request('field'),
-        //         request('direction')
-        //     );
-        // }
-
-        $balances = $query
-            ->where('company_id', session('company_id'))
-            ->paginate(10)
-            ->withQueryString()
-            ->through(
-                function ($accountgroup) {
-                    return
-                        [
-                            'id' => $accountgroup->id,
-                            'name' => $accountgroup->name,
-                            'type_id' => $accountgroup->type_id,
-                            'type_name' => $accountgroup->accountType->name,
-                            'company_id' => $accountgroup->company_id,
-                            'company_name' => $accountgroup->company->name,
-                            'delete' => Account::where('group_id', $accountgroup->id)->first() ? false : true,
-                        ];
-                }
-            );
-
         if(request()->has(
-            // ['select',
+            // ['select', 'search']
             'search'
-            // ]
             )){
-            // $users = App\Models\User::where($request->select,'like', '%'.$request->search.'%')->get();
-            // dd($req->search);
-            $acc_groups = AccountGroup::where(
+            $obj_data = AccountGroup::where(
                 // $req->select
                 'name'
                 ,'LIKE', '%'.$req->search.'%')
             ->where('company_id', session('company_id'))
             ->get();
-            $mapped_data = $acc_groups->map(function($acc_group, $key) {
+            $mapped_data = $obj_data->map(function($acc_group, $key) {
             return [
                     'id' => $acc_group->id,
                     'name' => $acc_group->name,
@@ -77,12 +35,13 @@ class AccountGroupController extends Controller
                     'type_name' => $acc_group->accountType->name,
                     'company_id' => $acc_group->company_id,
                     'company_name' => $acc_group->company->name,
+                    'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
                 ];
             });
         }
         else{
-            $acc_groups = AccountGroup::where('company_id', session('company_id'))->get();
-            $mapped_data = $acc_groups->map(function($acc_group, $key) {
+            $obj_data = AccountGroup::where('company_id', session('company_id'))->get();
+            $mapped_data = $obj_data->map(function($acc_group, $key) {
             return [
                     'id' => $acc_group->id,
                     'name' => $acc_group->name,
@@ -90,16 +49,14 @@ class AccountGroupController extends Controller
                     'type_name' => $acc_group->accountType->name,
                     'company_id' => $acc_group->company_id,
                     'company_name' => $acc_group->company->name,
+                    'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
                 ];
             });
         }
 
-
-
         return Inertia::render('AccountGroups/Index', [
-            'acc_groups' => $mapped_data,
+            'mapped_data' => $mapped_data,
             'filters' => request()->all(['search', 'field', 'direction']),
-            'balances' => $balances,
             'can' => [
                 'edit' => auth()->user()->can('edit'),
                 'create' => auth()->user()->can('create'),
@@ -107,7 +64,7 @@ class AccountGroupController extends Controller
                 'read' => auth()->user()->can('read'),
             ],
             'exists' => AccountGroup::where('company_id', session('company_id'))->first() ? false : true,
-            'company' => Company::where('id', session('company_id'))->first(),
+            'company' => Company::find(session('company_id')),
             'companies' => Auth::user()->companies,
         ]);
     }

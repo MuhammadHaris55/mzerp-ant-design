@@ -12,10 +12,11 @@ use Inertia\Inertia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request as Req;
 
 class AccountController extends Controller
 {
-    public function index()
+    public function index(Req $req)
     {
         if (AccountGroup::where('company_id', session('company_id'))->first()) {
 
@@ -54,10 +55,43 @@ class AccountController extends Controller
                             ];
                     }
                 );
-            return Inertia::render('Accounts/Index', [
 
+            if(request()->has(
+                // ['select', 'search']
+                'search'
+                )){
+                $obj_data = Account::where(
+                    // $req->select
+                    'name'
+                    ,'LIKE', '%'.$req->search.'%')
+                ->where('company_id', session('company_id'))
+                ->get();
+                $mapped_data = $obj_data->map(function($account, $key) {
+                return [
+                        'id' => $account->id,
+                        'name' => $account->name,
+                        // 'group_id' => $account->parent_id,
+                        'group_name' => $account->accountGroup->name,
+                        'delete' => Entry::where('account_id', $account->id)->first() ? false : true,
+                    ];
+                });
+            }
+            else{
+                $obj_data = Account::where('company_id', session('company_id'))->get();
+                $mapped_data = $obj_data->map(function($account, $key) {
+                return [
+                        'id' => $account->id,
+                        'name' => $account->name,
+                        // 'group_id' => $account->parent_id,
+                        'group_name' => $account->accountGroup->name,
+                        'delete' => Entry::where('account_id', $account->id)->first() ? false : true,
+                    ];
+                });
+            }
+            return Inertia::render('Accounts/Index', [
                 'filters' => request()->all(['search', 'field', 'direction']),
                 'balances' => $balances,
+                'mapped_data' => $mapped_data,
                 'company' => Company::where('id', session('company_id'))->first(),
                 'companies' => auth()->user()->companies,
                 'can' => [

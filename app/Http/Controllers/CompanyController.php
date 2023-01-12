@@ -31,18 +31,18 @@ class CompanyController extends Controller
 
     public function index()
     {
-        //Validating request
-        request()->validate([
-            'direction' => ['in:asc,desc'],
-            'field' => ['in:name,email']
-        ]);
-
-        $query = auth()->user()->companies()->getQuery()->paginate(10)
-            ->withQueryString()
-            ->through(
-                fn ($comp) =>
-                [
-                    'id' => $comp->company_id,
+        if(request()->has(
+            // ['select', 'search']
+            'search'
+            )){
+            $obj_data = auth()->user()->companies()->where(
+                // $req->select
+                'name'
+                ,'LIKE', '%'.$req->search.'%')
+            ->get();
+            $mapped_data = $obj_data->map(function($comp, $key) {
+            return [
+                    'id' => $comp->id,
                     'name' => $comp->name,
                     'address' => $comp->address,
                     'email' => $comp->email,
@@ -51,19 +51,25 @@ class CompanyController extends Controller
                     'fiscal' => $comp->fiscal,
                     'incorp' => $comp->incorp,
                     'delete' => Year::where('company_id', $comp->company_id)->first() != null ? false : true,
-                ],
-            );
-        if (request('search')) {
-            $query->where('name', 'LIKE', '%' . request('search') . '%');
+                ];
+            });
         }
-
-        if (request()->has(['field', 'direction'])) {
-            $query->orderBy(
-                request('field'),
-                request('direction')
-            );
+        else{
+            $obj_data = auth()->user()->companies()->get();
+            $mapped_data = $obj_data->map(function($comp, $key) {
+            return [
+                    'id' => $comp->id,
+                    'name' => $comp->name,
+                    'address' => $comp->address,
+                    'email' => $comp->email,
+                    'web' => $comp->web,
+                    'phone' => $comp->phone,
+                    'fiscal' => $comp->fiscal,
+                    'incorp' => $comp->incorp,
+                    'delete' => Year::where('company_id', $comp->company_id)->first() != null ? false : true,
+                ];
+            });
         }
-// dd(auth()->user()->can('delete'));
 
         return Inertia::render('Company/Index', [
             'can' => [
@@ -72,7 +78,7 @@ class CompanyController extends Controller
                 'delete' => auth()->user()->can('delete'),
                 'read' => auth()->user()->can('read'),
             ],
-            'balances' => $query,
+            'mapped_data' => $mapped_data,
             'filters' => request()->all(['search', 'field', 'direction'])
         ]);
     }

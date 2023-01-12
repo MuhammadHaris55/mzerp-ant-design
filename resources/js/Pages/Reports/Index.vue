@@ -23,17 +23,18 @@
               {{ type.name }}
             </option>
           </select>
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
@@ -330,8 +331,8 @@ export default {
     destroy(id) {
       this.$inertia.delete(route("years.destroy", id));
     },
-    coch() {
-      this.$inertia.get(route("companies.coch", this.co_id["id"]));
+    coch(value) {
+      this.$inertia.get(route("companies.coch", value));
     },
 
     yrch() {

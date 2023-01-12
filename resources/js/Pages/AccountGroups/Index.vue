@@ -4,221 +4,67 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-xl text-white my-2">Account Groups</h2>
         <div class="justify-end">
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
-    <div
-      v-if="$page.props.flash.success"
-      class="bg-green-600 text-white text-center"
-    >
-      {{ $page.props.flash.success }}
-    </div>
-    <div
-      v-if="$page.props.flash.warning"
-      class="bg-yellow-600 text-white text-center"
-    >
-      {{ $page.props.flash.warning }}
-    </div>
+
+    <FlashMessage />
+
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-      <jet-button v-if="can['create']" @click="create" class="ml-2"
-        >Create</jet-button
-      >
-      <jet-button v-if="exists && can['create']" @click="generate" class="ml-2"
-        >Auto Generate Groups</jet-button
+      <Button v-if="can['create']" @click="create" class="ml-2">Create</Button>
+      <Button v-if="exists && can['create']" @click="generate" class="ml-2"
+        >Auto Generate Groups</Button
       >
 
-      <!-- disabled="false" -->
-      <!-- <button
-      class="border bg-indigo-300 rounded-xl px-4  m-1"
-      @click="check();
-        this.disable = true;
-        (_) => {
-          setTimeout(() => {}, 1000);
-        };
-      "
-    >
-      <span>Check</span>
-    </button> -->
-
-      <!-- <input
-        type="search"
-        v-model="params.search"
-        aria-label="Search"
-        placeholder="Search..."
-        class="h-9 w-full lg:w-1/4 ml-4 rounded-full placeholder-indigo-300"
-      /> -->
-      <input
-        type="text"
-        class="
-          ml-4
-          h-8
-          px-2
-          w-80
-          border-gray-800
-          ring-gray-800 ring-1
-          outline-none
-        "
-        v-model="params.search"
-        @change="search_data"
-        aria-label="Search"
-        placeholder="Search..."
+      <InputSearch
+        class="ml-2"
+        v-model:value="search"
+        placeholder="input search text"
+        style="width: 200px"
+        @search="onSearch"
       />
-      <button
-        @click="search_data"
-        class="
-          border-2
-          pb-2.5
-          pt-1
-          bg-gray-800
-          border-gray-800
-          px-1
-          hover:bg-gray-700
-        "
-      >
-        <svg
-          class="w-8 h-4 text-white"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 25 20"
+
+      <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
+        <Table
+          :columns="columns"
+          :data-source="mapped_data"
+          :loading="loading"
+          class="mt-2"
+          size="small"
         >
-          <path
-            d="M16.32 14.9l5.39 5.4a1 1 0 0 1-1.42 1.4l-5.38-5.38a8 8 0 1 1 1.41-1.41zM10 16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"
-          />
-        </svg>
-      </button>
-      <div>
-        <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-          <table class="w-full shadow-lg border rounded-2xl">
-            <thead>
-              <tr class="bg-gray-800 text-white">
-                <th class="py-1 px-4 border w-2/5">Group Name</th>
-                <th class="py-1 px-4 border">Group Type</th>
-                <th
-                  v-if="can['edit'] || can['delete']"
-                  class="py-1 px-4 border"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="bg-gray-100"
-                v-for="item in balances.data"
-                :key="item.id"
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'actions'">
+              <!-- v-if="can['edit'] || can['delete']" -->
+              <Button
+                size="small"
+                v-if="can['edit']"
+                type="primary"
+                @click="edit(record.id)"
+                class="mr-2"
+                >Edit</Button
               >
-                <td style="width: 30%" class="px-4 border">{{ item.name }}</td>
-                <td style="width: 30%" class="px-4 border text-center">
-                  {{ item.type_name }}
-                </td>
-                <td
-                  v-if="can['edit'] || can['delete']"
-                  style="width: 40%"
-                  class="px-4 border text-center"
-                >
-                  <button
-                    class="
-                      border
-                      bg-indigo-300
-                      rounded-xl
-                      px-4
-                      m-1
-                      hover:text-white hover:bg-indigo-400
-                    "
-                    @click="edit(item.id)"
-                    v-if="can['edit']"
-                  >
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    class="
-                      border
-                      bg-red-500
-                      rounded-xl
-                      px-4
-                      m-1
-                      hover:text-white hover:bg-red-600
-                    "
-                    @click="destroy(item.id)"
-                    v-if="item.delete && can['delete']"
-                  >
-                    <span>Delete</span>
-                  </button>
-                </td>
-              </tr>
-              <tr v-if="balances.data.length === 0">
-                <td class="border-t px-6 py-4 bg-gray-100" colspan="4">
-                  No Record found.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <br />
-          <InputSearch
-            v-model:value="search"
-            placeholder="input search text"
-            style="width: 200px"
-            @search="onSearch"
-          />
-          <Table
-            :columns="columns"
-            :data-source="acc_groups"
-            :loading="loading"
-            class="mt-2"
-            size="small"
-          >
-            <template #bodyCell="{ column }">
-              <template v-if="column.key === 'actions'">
-                <!-- <td
-                  v-if="can['edit'] || can['delete']"
-                  style="width: 40%"
-                  class="px-4 border text-center"
-                > -->
-                <button
-                  class="
-                    border
-                    bg-indigo-300
-                    rounded-xl
-                    px-4
-                    m-1
-                    hover:text-white hover:bg-indigo-400
-                  "
-                  @click="edit(item.id)"
-                  v-if="can['edit']"
-                >
-                  <span>Edit</span>
-                </button>
-                <button
-                  class="
-                    border
-                    bg-red-500
-                    rounded-xl
-                    px-4
-                    m-1
-                    hover:text-white hover:bg-red-600
-                  "
-                  @click="destroy(item.id)"
-                >
-                  <!-- v-if="item.delete && can['delete']" -->
-                  <span>Delete</span>
-                </button>
-                <!-- </td> -->
-              </template>
+              <Button
+                size="small"
+                v-if="record.delete && can['delete']"
+                danger
+                @click="destroy(record.id)"
+                >Delete</Button
+              >
             </template>
-          </Table>
-        </div>
-        <paginator class="mt-6" :balances="balances" />
+          </template>
+        </Table>
       </div>
     </div>
   </app-layout>
@@ -226,37 +72,30 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import JetButton from "@/Jetstream/Button";
-import Paginator from "@/Layouts/Paginator";
-import { pickBy } from "lodash";
-import { throttle } from "lodash";
-import Multiselect from "@suadelabs/vue3-multiselect";
+import FlashMessage from "@/Layouts/FlashMessage";
+import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
+
 import { ref } from "vue";
 import { Inertia } from "@inertiajs/inertia";
-import { Table, Select, InputSearch } from "ant-design-vue";
-import "ant-design-vue/dist/antd.css";
 
 export default {
   components: {
     AppLayout,
-    JetButton,
-    Paginator,
-    throttle,
-    pickBy,
-    Multiselect,
+    FlashMessage,
+    Button,
     Table,
+    Select,
     InputSearch,
   },
 
   props: {
-    data: Object,
-    balances: Object,
     filters: Object,
     companies: Object,
     company: Object,
     exists: Object,
     can: Object,
-    acc_groups: Object,
+    mapped_data: Object,
   },
 
   data() {
@@ -265,14 +104,15 @@ export default {
       co_id: this.company,
       options: this.companies,
       search: "",
+      selected: this.company.name,
 
       columns: [
-        {
-          title: "ID",
-          dataIndex: "id",
-          // sorter: (a, b) => a.id - b.id,
-          width: "10%",
-        },
+        // {
+        //   title: "ID",
+        //   dataIndex: "id",
+        //   // sorter: (a, b) => a.id - b.id,
+        //   width: "10%",
+        // },
         {
           title: "Group Name",
           dataIndex: "name",
@@ -325,7 +165,7 @@ export default {
       this.$inertia.get(
         route("accountgroups"),
         {
-          //   select: select.value,
+          // select: select.value,
           // search: search.value
           search: this.search,
         },
@@ -348,9 +188,8 @@ export default {
       this.$inertia.get(route("accountgroups.generate"));
     },
 
-    coch() {
-      // this.$inertia.get(route("companies.coch", this.co_id));
-      this.$inertia.get(route("companies.coch", this.co_id["id"]));
+    coch(value) {
+      this.$inertia.get(route("companies.coch", value));
     },
 
     sort(field) {
@@ -372,43 +211,6 @@ export default {
     //     this.postRecordSolo('clientStore/UPDATE_RECORDS_NO_TAB', this.endPoint, true)
     //   }, 1000)
     // }
-
-    search_data() {
-      let params = pickBy(this.params);
-      this.$inertia.get(this.route("accountgroups"), params, {
-        replace: true,
-        preserveState: true,
-      });
-    },
-  },
-  watch: {
-    params: {
-      //   handler() {
-      //     // let params = this.params;
-      //     // Object.keys(params).forEach((key) => {
-      //     //   if (params[key] == "") {
-      //     //     delete params[key];
-      //     //   }
-      //     // });
-
-      //     this.$inertia.get(this.route("companies"), params, {
-      //       replace: true,
-      //       preserveState: true,
-      //     });
-      //   },
-      //   deep: true,
-      // },
-      handler: throttle(function () {
-        let params = pickBy(this.params);
-        if (params.search == null) {
-          this.$inertia.get(this.route("accountgroups"), params, {
-            replace: true,
-            preserveState: true,
-          });
-        }
-      }, 150),
-      deep: true,
-    },
   },
 };
 </script>

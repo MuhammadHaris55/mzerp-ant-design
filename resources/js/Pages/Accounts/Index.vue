@@ -4,145 +4,66 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-xl text-white my-2">Accounts</h2>
         <div class="justify-end">
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
-    <div
-      v-if="$page.props.flash.success"
-      class="bg-green-600 text-white text-center"
-    >
-      {{ $page.props.flash.success }}
-    </div>
-    <div
-      v-if="$page.props.flash.warning"
-      class="bg-yellow-600 contentDSS-center text-white text-center"
-    >
-      {{ $page.props.flash.warning }}
-    </div>
+
+    <FlashMessage />
+
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-      <jet-button v-if="can['create']" @click="create" class="ml-2"
-        >Create Account</jet-button
+      <Button v-if="can['create']" @click="create" class="ml-2"
+        >Create Account</Button
       >
 
-      <input
-        type="text"
-        class="
-          ml-4
-          h-8
-          px-2
-          w-80
-          border-gray-800
-          ring-gray-800 ring-1
-          outline-none
-        "
-        v-model="params.search"
-        @change="search_data"
-        aria-label="Search"
-        placeholder="Search..."
+      <InputSearch
+        class="ml-2"
+        v-model:value="search"
+        placeholder="input search text"
+        style="width: 200px"
+        @search="onSearch"
       />
-      <button
-        @click="search_data"
-        class="
-          border-2
-          pb-2.5
-          pt-1
-          bg-gray-800
-          border-gray-800
-          px-1
-          hover:bg-gray-700
-        "
-      >
-        <svg
-          class="w-8 h-4 text-white"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 25 20"
+
+      <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
+        <Table
+          :columns="columns"
+          :data-source="mapped_data"
+          :loading="loading"
+          class="mt-2"
+          size="small"
         >
-          <path
-            d="M16.32 14.9l5.39 5.4a1 1 0 0 1-1.42 1.4l-5.38-5.38a8 8 0 1 1 1.41-1.41zM10 16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"
-          />
-        </svg>
-      </button>
-      <div class="">
-        <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-          <table class="w-full shadow-lg border rounded-2xl">
-            <thead>
-              <tr class="bg-gray-900 text-white">
-                <!-- <th class="py-2 px-4 border">ID</th> -->
-                <th class="py-1 px-4 border">Name of Account</th>
-                <th class="py-1 px-4 border">Group of Account</th>
-                <th
-                  v-if="can['edit'] || can['delete']"
-                  class="py-1 px-4 border"
-                >
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="bg-gray-100"
-                v-for="item in balances.data"
-                :key="item.id"
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'actions'">
+              <!-- v-if="can['edit'] || can['delete']" -->
+              <Button
+                size="small"
+                v-if="can['edit']"
+                type="primary"
+                @click="edit(record.id)"
+                class="mr-2"
+                >Edit</Button
               >
-                <!-- <td class="py-1 px-4 border text-center">{{ item.id }}</td> -->
-                <td class="px-4 border">{{ item.name }}</td>
-                <td class="px-4 border">{{ item.group_name }}</td>
-                <!-- <td class=" px-4 border">{{ item.accountGroup.name }}</td> -->
-                <td
-                  v-if="can['edit'] || can['delete']"
-                  class="px-4 border text-center"
-                >
-                  <button
-                    class="
-                      border
-                      bg-indigo-300
-                      rounded-xl
-                      px-4
-                      m-1
-                      hover:text-white hover:bg-indigo-400
-                    "
-                    @click="edit(item.id)"
-                    v-if="can['edit']"
-                  >
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    class="
-                      border
-                      bg-red-500
-                      rounded-xl
-                      px-4
-                      m-1
-                      hover:text-white hover:bg-red-600
-                    "
-                    @click="destroy(item.id)"
-                    v-if="item.delete && can['delete']"
-                  >
-                    <span>Delete</span>
-                  </button>
-                </td>
-              </tr>
-              <tr v-if="balances.data.length === 0">
-                <td class="border-t px-6 py-4 bg-gray-100" colspan="4">
-                  No Record found.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <paginator class="mt-6" :balances="balances" />
+              <Button
+                size="small"
+                v-if="record.delete && can['delete']"
+                danger
+                @click="destroy(record.id)"
+                >Delete</Button
+              >
+            </template>
+          </template>
+        </Table>
       </div>
     </div>
   </app-layout>
@@ -150,6 +71,10 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
+import FlashMessage from "@/Layouts/FlashMessage";
+import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
+
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
 import { pickBy } from "lodash";
@@ -159,6 +84,12 @@ import Multiselect from "@suadelabs/vue3-multiselect";
 export default {
   components: {
     AppLayout,
+    FlashMessage,
+    Button,
+    Table,
+    Select,
+    InputSearch,
+
     JetButton,
     Paginator,
     throttle,
@@ -169,6 +100,7 @@ export default {
   props: {
     data: Object,
     balances: Object,
+    mapped_data: Object,
     filters: Object,
     can: Object,
     companies: Array,
@@ -180,6 +112,39 @@ export default {
       // co_id: this.$page.props.co_id,
       co_id: this.company,
       options: this.companies,
+      search: "",
+      selected: this.company.name,
+
+      search: "",
+      selected: this.company.name,
+
+      columns: [
+        {
+          title: "Name of Account",
+          dataIndex: "name",
+          // sorter: (a, b) => {
+          //     const nameA = a.name.toUpperCase();
+          //     const nameB = b.name.toUpperCase();
+          //     if (nameA < nameB) {
+          //         return -1;
+          //     }
+          //     if (nameA > nameB) {
+          //         return 1;
+          //     }
+          //     return 0;
+          //     },
+          width: "20%",
+        },
+        {
+          title: "Group of Account",
+          dataIndex: "group_name",
+        },
+        {
+          title: "Actions",
+          dataIndex: "actions",
+          key: "actions",
+        },
+      ],
 
       params: {
         search: this.filters.search,
@@ -190,6 +155,17 @@ export default {
   },
 
   methods: {
+    onSearch() {
+      this.$inertia.get(
+        route("accounts"),
+        {
+          // select: select.value,
+          // search: search.value
+          search: this.search,
+        },
+        { replace: true, preserveState: true }
+      );
+    },
     create() {
       this.$inertia.get(route("accounts.create"));
     },
@@ -201,8 +177,8 @@ export default {
     destroy(id) {
       this.$inertia.delete(route("accounts.destroy", id));
     },
-    coch() {
-      this.$inertia.get(route("companies.coch", this.co_id["id"]));
+    coch(value) {
+      this.$inertia.get(route("companies.coch", value));
     },
 
     sort(field) {

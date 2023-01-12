@@ -23,85 +23,39 @@
               {{ type.name }}
             </option>
           </select>
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
-    <div
-      v-if="$page.props.flash.success"
-      class="bg-green-600 text-white text-center"
-    >
-      {{ $page.props.flash.success }}
-    </div>
-    <div
-      v-if="$page.props.flash.warning"
-      class="bg-yellow-600 text-white text-center"
-    >
-      {{ $page.props.flash.warning }}
-    </div>
-    <div
-      v-if="$page.props.flash.error"
-      class="bg-red-600 text-white text-center"
-    >
-      {{ $page.props.flash.error }}
-    </div>
+
+    <FlashMessage />
+
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
       <!-- <div class="p-2 mr-2 mb-2 ml-2 flex flex-wrap"> -->
-      <jet-button
-        v-if="yearclosed && can['create']"
-        @click="create"
-        class="ml-2 float-left"
-        >Create</jet-button
+
+      <Button v-if="yearclosed && can['create']" @click="create" class="ml-2"
+        >Create</Button
       >
-      <input
-        type="text"
-        class="
-          ml-4
-          h-8
-          px-2
-          w-80
-          border-gray-800
-          ring-gray-800 ring-1
-          outline-none
-        "
-        @change="search_data"
-        v-model="params.search"
-        aria-label="Search"
-        placeholder="Search..."
+
+      <InputSearch
+        class="ml-2"
+        v-model:value="search"
+        placeholder="input search text"
+        style="width: 200px"
+        @search="onSearch"
       />
-      <button
-        @click="search_data"
-        class="
-          border-2
-          pb-2.5
-          pt-1
-          bg-gray-800
-          border-gray-800
-          px-1
-          hover:bg-gray-700
-        "
-      >
-        <svg
-          class="w-8 h-4 text-white"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 25 20"
-        >
-          <path
-            d="M16.32 14.9l5.39 5.4a1 1 0 0 1-1.42 1.4l-5.38-5.38a8 8 0 1 1 1.41-1.41zM10 16a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"
-          />
-        </svg>
-      </button>
+
       <div v-if="can['create']" class="mt-2">
         <form @submit.prevent="submit">
           <input
@@ -221,102 +175,67 @@
       <!-- <div class="w-full px-8"> -->
       <!-- ml-8 mr-8 -->
       <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-        <table class="w-full shadow-lg border rounded-2xl">
-          <thead>
-            <tr class="text-white bg-gray-800">
-              <th class="py-1 px-4 border">Reference</th>
-              <th class="py-1 px-4 border">Date</th>
-              <th class="py-1 px-4 border w-2/5">Description</th>
-              <th class="py-1 px-4 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="bg-gray-100" v-for="item in data.data" :key="item.id">
-              <td style="width: 15%" class="px-4 border text-center">
-                {{ item.ref }}
-              </td>
-              <td style="width: 15%" class="px-4 border text-center">
-                {{ item.date }}
-              </td>
-              <td style="width: 40%" class="px-4 border w-2/5">
-                {{ item.description }}
-              </td>
+        <Table
+          :columns="columns"
+          :data-source="mapped_data"
+          :loading="loading"
+          class="mt-2"
+          size="small"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'actions'">
               <!-- v-if="can['edit'] || can['delete']" -->
-              <td style="width: 30%" class="px-4 border text-center">
-                <button
-                  class="
-                    border
-                    bg-indigo-300
-                    rounded-xl
-                    px-4
-                    m-1
-                    hover:text-white hover:bg-indigo-400
-                  "
-                  @click="edit(item.id)"
-                  v-if="yearclosed && can['edit']"
-                >
-                  <span>Edit</span>
-                </button>
-                <button
-                  class="
-                    border
-                    bg-indigo-300
-                    rounded-xl
-                    px-4
-                    m-1
-                    hover:text-white hover:bg-indigo-400
-                  "
-                  @click="edit(item.id)"
-                  v-else
-                >
-                  <span>Show</span>
-                </button>
-                <button
-                  class="
-                    border
-                    bg-red-500
-                    rounded-xl
-                    px-4
-                    m-1
-                    hover:text-white hover:bg-red-600
-                  "
-                  @click="destroy(item.id)"
-                  v-if="item.delete && can['delete']"
-                >
-                  <span>Delete</span>
-                </button>
-                <div
-                  class="
-                    border
-                    bg-gray-300
-                    text-md
-                    rounded-full
-                    shadow-md
-                    px-4
-                    inline-block
-                    hover:bg-gray-700 hover:text-white
-                  "
-                >
-                  <a :href="'pd/' + item.id" target="_blank">Voucher in PDF</a>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="data.data.length === 0">
-              <td class="border-t px-6 py-4 bg-gray-100" colspan="4">
-                No Record found.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <Button
+                size="small"
+                v-if="yearclosed && can['edit']"
+                type="primary"
+                @click="edit(record.id)"
+                class="mr-2"
+                >Edit</Button
+              >
+              <Button
+                size="small"
+                v-else
+                type="primary"
+                @click="edit(record.id)"
+                class="mr-2"
+                >Show</Button
+              >
+              <Button
+                size="small"
+                v-if="record.delete && can['delete']"
+                danger
+                @click="destroy(record.id)"
+                >Delete</Button
+              >
+              <div
+                class="
+                  border
+                  bg-gray-300
+                  text-md
+                  rounded-full
+                  shadow-md
+                  px-4
+                  inline-block
+                  hover:bg-gray-700 hover:text-white
+                "
+              >
+                <a :href="'pd/' + record.id" target="_blank">Voucher in PDF</a>
+              </div>
+            </template>
+          </template>
+        </Table>
       </div>
-      <paginator class="mt-6" :balances="data" />
-      <!-- </div> -->
     </div>
   </app-layout>
 </template>
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
+import FlashMessage from "@/Layouts/FlashMessage";
+import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
+
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
 import moment from "moment";
@@ -328,6 +247,12 @@ import { useForm } from "@inertiajs/inertia-vue3";
 export default {
   components: {
     AppLayout,
+    FlashMessage,
+    Button,
+    Table,
+    Select,
+    InputSearch,
+
     JetButton,
     Paginator,
     throttle,
@@ -338,6 +263,7 @@ export default {
   },
 
   props: {
+    mapped_data: Object,
     errors: Object,
     data: Object,
     filters: Object,
@@ -359,7 +285,49 @@ export default {
       // co_id: this.$page.props.co_id,
       co_id: this.company,
       options: this.companies,
+      search: "",
+      selected: this.company.name,
       yr_id: this.$page.props.yr_id,
+      search: "",
+      selected: this.company.name,
+
+      columns: [
+        // {
+        //   title: "ID",
+        //   dataIndex: "id",
+        //   // sorter: (a, b) => a.id - b.id,
+        //   width: "10%",
+        // },
+        {
+          title: "Reference",
+          dataIndex: "ref",
+          // sorter: (a, b) => {
+          //     const nameA = a.name.toUpperCase();
+          //     const nameB = b.name.toUpperCase();
+          //     if (nameA < nameB) {
+          //         return -1;
+          //     }
+          //     if (nameA > nameB) {
+          //         return 1;
+          //     }
+          //     return 0;
+          //     },
+          width: "20%",
+        },
+        {
+          title: "Date",
+          dataIndex: "date",
+        },
+        {
+          title: "Description",
+          dataIndex: "description",
+        },
+        {
+          title: "Actions",
+          dataIndex: "actions",
+          key: "actions",
+        },
+      ],
 
       params: {
         search: this.filters.search,
@@ -370,6 +338,17 @@ export default {
   },
 
   methods: {
+    onSearch() {
+      this.$inertia.get(
+        route("documents"),
+        {
+          // select: select.value,
+          // search: search.value
+          search: this.search,
+        },
+        { replace: true, preserveState: true }
+      );
+    },
     //   for file upload
     submit() {
       if (this.form.avatar) {
@@ -400,8 +379,8 @@ export default {
       this.$inertia.delete(route("documents.destroy", id));
     },
 
-    coch() {
-      this.$inertia.get(route("companies.coch", this.co_id["id"]));
+    coch(value) {
+      this.$inertia.get(route("companies.coch", value));
     },
     // yrch() {
     //   this.$inertia.get(route("companies.yrch", this.yr_id));

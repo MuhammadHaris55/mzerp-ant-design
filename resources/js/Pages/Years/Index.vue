@@ -4,184 +4,95 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-xl text-white my-2">Years</h2>
         <div class="justify-end">
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
-    <div
-      v-if="$page.props.flash.success"
-      class="bg-green-600 text-white text-center"
-    >
-      {{ $page.props.flash.success }}
-    </div>
-    <div
-      v-if="$page.props.flash.error"
-      class="bg-red-600 text-white text-center"
-    >
-      {{ $page.props.flash.error }}
-    </div>
+
+    <FlashMessage />
+
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-      <!-- <jet-button @click="create" class="mt-4 ml-8">Create</jet-button> -->
+      <Button v-if="can['create']" @click="create" class="ml-2"
+        >Add Year</Button
+      >
 
-      <form @submit.prevent="form.get(route('years.create'))">
-        <jet-button
-          v-if="can['create']"
-          type="submit"
-          @click="create"
-          class="ml-2"
-          >Add Year</jet-button
+      <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
+        <Table
+          :columns="columns"
+          :data-source="mapped_data"
+          :loading="loading"
+          class="mt-2"
+          size="small"
         >
-
-        <!-- <button
-          class="border bg-indigo-300 rounded-xl px-4  m-1 ml-2 mt-4"
-          type="submit"
-          :disabled="form.processing"
-        >
-          Add Year
-        </button> -->
-        <!-- <select
-          v-model="co_id"
-          class="pr-2 ml-2 pb-2 w-full lg:w-1/4 rounded-md float-right mt-2"
-          label="company"
-          @change="coch"
-        >
-          <option v-for="type in companies" :key="type.id" :value="type.id">
-            {{ type.name }}
-          </option>
-        </select> -->
-        <!-- <div v-if="errors.type">{{ errors.type }}</div> -->
-        <div class="">
-          <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-            <table class="w-full shadow-lg border rounded-2xl">
-              <thead>
-                <tr class="bg-gray-800 text-white">
-                  <th class="py-1 px-4 border">Company</th>
-                  <th class="py-1 px-4 border">Begin</th>
-                  <th class="py-1 px-4 border">End</th>
-                  <th
-                    v-if="can['edit'] || can['delete']"
-                    class="py-1 px-4 border"
-                  >
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  class="bg-gray-50"
-                  v-for="(item, index) in balances.data"
-                  :key="item.id"
-                >
-                  <td class="w-4/12 px-4 border w-2/5">
-                    {{ item.company_name }}
-                  </td>
-                  <td class="w-2/12 px-4 border w-2/6 text-center">
-                    {{ item.begin }}
-                  </td>
-                  <td class="w-2/12 px-4 border w-2/6 text-center">
-                    {{ item.end }}
-                  </td>
-                  <td
-                    v-if="can['edit'] || can['delete']"
-                    class="w-4/12px-4 border w-2/6 text-center"
-                  >
-                    <button
-                      class="
-                        border
-                        bg-indigo-300
-                        rounded-xl
-                        px-4
-                        m-1
-                        hover:text-white hover:bg-indigo-400
-                      "
-                      @click="edit(item.id)"
-                      v-if="can['edit']"
-                      type="button"
-                    >
-                      <span>Edit</span>
-                    </button>
-                    <button
-                      class="
-                        border
-                        bg-red-500
-                        rounded-xl
-                        px-4
-                        m-1
-                        hover:text-white hover:bg-red-600
-                      "
-                      @click="destroy(item.id)"
-                      type="button"
-                      v-if="item.delete && can['delete'] && index >> 0"
-                    >
-                      <span>Delete</span>
-                    </button>
-                    <button
-                      v-if="item.closed == 0"
-                      class="
-                        border
-                        bg-gray-300
-                        rounded-xl
-                        px-4
-                        m-1
-                        hover:bg-gray-700 hover:text-white
-                      "
-                      @click="close(item.id)"
-                      type="button"
-                    >
-                      <span>Close Fiscal</span>
-                    </button>
-                  </td>
-                </tr>
-                <tr v-if="balances.data.length === 0">
-                  <td class="border-t px-6 py-4 bg-gray-100" colspan="4">
-                    No Record found.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <paginator class="mt-6" :balances="balances" />
-        </div>
-      </form>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'actions'">
+              <!-- v-if="can['edit'] || can['delete']" -->
+              <Button
+                size="small"
+                v-if="can['edit']"
+                type="primary"
+                @click="edit(record.id)"
+                class="mr-2"
+                >Edit</Button
+              >
+              <Button
+                class="mr-2"
+                size="small"
+                v-if="record.delete && can['delete']"
+                danger
+                @click="destroy(record.id)"
+                >Delete</Button
+              >
+              <Button
+                size="small"
+                v-if="record.closed == 0"
+                type="primary"
+                @click="close(record.id)"
+                >Close Fiscal</Button
+              >
+            </template>
+          </template>
+        </Table>
+      </div>
     </div>
   </app-layout>
 </template>
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import JetButton from "@/Jetstream/Button";
-import { useForm } from "@inertiajs/inertia-vue3";
+import FlashMessage from "@/Layouts/FlashMessage";
+import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
 import Multiselect from "@suadelabs/vue3-multiselect";
-import Paginator from "@/Layouts/Paginator";
-// import { Head, Link } from "@inertiajs/inertia-vue3";
 
 export default {
   components: {
     AppLayout,
-    JetButton,
-    useForm,
+    FlashMessage,
+    Button,
+    Table,
+    Select,
+    InputSearch,
     Multiselect,
-    Paginator,
-    // Link,
-    // Head,
   },
 
   // props: ["data", "companies", "company"],
   props: {
-    balances: Object,
     companies: Object,
     company: Object,
     can: Object,
+    mapped_data: Object,
   },
 
   data() {
@@ -189,12 +100,47 @@ export default {
       // co_id: this.$page.props.co_id,
       co_id: this.company,
       options: this.companies,
-    };
-  },
+      search: "",
+      selected: this.company.name,
 
-  setup(props) {
-    const form = useForm({});
-    return { form };
+      columns: [
+        // {
+        //   title: "ID",
+        //   dataIndex: "id",
+        //   // sorter: (a, b) => a.id - b.id,
+        //   width: "10%",
+        // },
+        {
+          title: "Company",
+          dataIndex: "company_name",
+          // sorter: (a, b) => {
+          //     const nameA = a.name.toUpperCase();
+          //     const nameB = b.name.toUpperCase();
+          //     if (nameA < nameB) {
+          //         return -1;
+          //     }
+          //     if (nameA > nameB) {
+          //         return 1;
+          //     }
+          //     return 0;
+          //     },
+          width: "20%",
+        },
+        {
+          title: "Begin",
+          dataIndex: "begin",
+        },
+        {
+          title: "End",
+          dataIndex: "end",
+        },
+        {
+          title: "Actions",
+          dataIndex: "actions",
+          key: "actions",
+        },
+      ],
+    };
   },
 
   methods: {
@@ -214,9 +160,9 @@ export default {
       this.$inertia.get(route("years.close", id));
     },
 
-    coch() {
+    coch(value) {
       // this.$inertia.get(route("companies.coch", this.co_id));
-      this.$inertia.get(route("companies.coch", this.co_id["id"]));
+      this.$inertia.get(route("companies.coch", value));
     },
   },
 };

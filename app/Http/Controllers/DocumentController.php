@@ -19,7 +19,7 @@ use PhpParser\Comment\Doc;
 
 class DocumentController extends Controller
 {
-    public function index()
+    public function index(Req $req)
     {
         //Validating request
         request()->validate([
@@ -34,56 +34,61 @@ class DocumentController extends Controller
 
         if ($acc && $doc_ty) {
 
-            $query = Document::query();
+                // ['select', 'search']
+            if(request()->has('search'))
+            {
+                $search_word = $req->search;
+            $obj_data = Document::select("*")
+                ->where(function ($query) use ($search_word){
+                    $query
+                        ->where('company_id', session('company_id'))
+                        ->where('year_id', session('year_id'))
+                        ->where('description', 'LIKE', '%' . $search_word . '%');
+                })->orWhere(function($query) use ($search_word){
+                    $query
+                        ->where('company_id', session('company_id'))
+                        ->where('year_id', session('year_id'))
+                        ->where('ref', 'LIKE', '%' . $search_word . '%');
+                })->orWhere(function($query) use ($search_word){
+                    $query
+                        ->where('company_id', session('company_id'))
+                        ->where('year_id', session('year_id'))
+                        ->where('date', 'LIKE', '%' . $search_word . '%');
+                })->get();
+            $mapped_data = $obj_data->map(function($document, $key) {
+            return [
+                    'id' => $document->id,
+                    'ref' => $document->ref,
 
-            if (request('search')) {
-                // $query->where('description', 'LIKE', '%' . request('search') . '%');
-                $query->where(function ($query) {
-                    $query
-                        ->where('company_id', session('company_id'))
-                        ->where('year_id', session('year_id'))
-                        ->where('description', 'LIKE', '%' . request('search') . '%');
-                })->orWhere(function($query) {
-                    $query
-                        ->where('company_id', session('company_id'))
-                        ->where('year_id', session('year_id'))
-                        ->where('ref', 'LIKE', '%' . request('search') . '%');
-                })->orWhere(function($query) {
-                    $query
-                        ->where('company_id', session('company_id'))
-                        ->where('year_id', session('year_id'))
-                        ->where('date', 'LIKE', '%' . request('search') . '%');
-                });
-            }
-            //Ordering request
-            if (request()->has(['field', 'direction'])) {
-                $query->orderBy(
-                    request('field'),
-                    request('direction')
-                );
-            }
-
-            $docs = $query
-                ->where('company_id', session('company_id'))
+                    $date = new Carbon($document->date),
+                    'date' => $date->format('M d, Y'),
+                    'description' => $document->description,
+                    'type_id' => $document->type_id,
+                    'company_id' => session('company_id'),
+                    'year_id' => session('year_id'),
+                    'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
+                ];
+            });
+        }
+        else{
+            $obj_data = Document::where('company_id', session('company_id'))
                 ->where('year_id', session('year_id'))
-                ->paginate(10)
-                ->withQueryString()
-                ->through(
-                    fn ($document) =>
-                    [
-                        'id' => $document->id,
-                        'ref' => $document->ref,
+                ->get();
+            $mapped_data = $obj_data->map(function($document, $key) {
+            return [
+                    'id' => $document->id,
+                    'ref' => $document->ref,
 
-                        $date = new Carbon($document->date),
-                        'date' => $date->format('M d, Y'),
-                        'description' => $document->description,
-                        'type_id' => $document->type_id,
-                        'company_id' => session('company_id'),
-                        'year_id' => session('year_id'),
-                        'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
-                    ]
-                );
-
+                    $date = new Carbon($document->date),
+                    'date' => $date->format('M d, Y'),
+                    'description' => $document->description,
+                    'type_id' => $document->type_id,
+                    'company_id' => session('company_id'),
+                    'year_id' => session('year_id'),
+                    'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
+                ];
+            });
+        }
 
             return Inertia::render(
                 'Documents/Index',
@@ -94,7 +99,8 @@ class DocumentController extends Controller
                         'delete' => auth()->user()->can('delete'),
                         'read' => auth()->user()->can('read'),
                     ],
-                    'data' => $docs,
+                    'mapped_data' => $mapped_data,
+                    // 'data' => $docs,
                     'yearclosed' => $yearclosed,
                     'filters' => request()->all(['search', 'field', 'direction']),
                     'company' => Company::where('id', session('company_id'))->first(),

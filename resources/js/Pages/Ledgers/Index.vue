@@ -4,25 +4,24 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-xl text-white my-2">Ledgers</h2>
         <div class="justify-end">
-          <multiselect
-            style="width: 50%"
-            class="float-right rounded-md border border-black float-right"
-            placeholder="Select Company."
-            v-model="co_id"
-            track-by="id"
-            label="name"
+          <Select
+            v-model:value="selected"
             :options="options"
-            @update:model-value="coch"
-          >
-          </multiselect>
+            :field-names="{ label: 'name', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="coch"
+            class="w-full"
+          />
         </div>
       </div>
     </template>
 
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-      <div v-if="$page.props.flash.success" class="bg-green-600 text-white">
-        {{ $page.props.flash.success }}
-      </div>
+      <FlashMessage />
 
       <form
         target="_blank"
@@ -74,8 +73,9 @@
           name="date_end"
         />
         <div v-if="errors.date_end">{{ errors.date_end }}</div>
+        <Button html-type="submit" class="ml-2">Ledger Report</Button>
 
-        <div
+        <!-- <div
           class="
             border
             rounded-lg
@@ -91,81 +91,36 @@
           "
         >
           <button type="submit">Ledger Report</button>
-        </div>
+        </div> -->
         <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-          <table class="w-full shadow-lg border rounded-2xl">
-            <thead>
-              <tr class="bg-gray-800 text-white">
-                <th class="py-1 px-4 border">Reference</th>
-                <th class="py-1 px-4 border">Date</th>
-                <th class="py-1 px-4 border">Decription</th>
-                <th class="py-1 px-4 border">Debit</th>
-                <th class="py-1 px-4 border">Credit</th>
-                <th class="py-1 px-4 border">Balance</th>
-              </tr>
-            </thead>
-            <tbody v-if="this.account_id != 0">
-              <tr class="bg-gray-100">
-                <td style="widht: 15%" class="py-1 px-4 border"></td>
-                <td style="widht: 15%" class="py-1 px-4 border"></td>
-                <td style="widht: 25%" class="py-1 px-4 border font-bold">
-                  Opening Balance
-                </td>
-                <td style="widht: 15%" class="py-1 px-4 border"></td>
-                <td style="widht: 15%" class="py-1 px-4 border"></td>
-                <td
-                  style="widht: 15%"
-                  class="py-1 px-4 border font-bold text-center"
+          <Table
+            :columns="columns"
+            :data-source="mapped_data"
+            :loading="loading"
+            class="mt-2"
+            size="small"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'actions'">
+                <!-- v-if="can['edit'] || can['delete']" -->
+                <Button
+                  size="small"
+                  v-if="can['edit']"
+                  type="primary"
+                  @click="edit(record.id)"
+                  class="mr-2"
+                  >Edit</Button
                 >
-                  {{ prebal }}
-                </td>
-              </tr>
-              <tr
-                class="bg-gray-100"
-                v-for="(item, index) in entries"
-                :key="item.id"
-              >
-                <td style="width: 15%" class="py-1 px-4 border">
-                  {{ item.ref }}
-                </td>
-                <td style="width: 10%" class="py-1 px-4 border text-center">
-                  {{ item.date }}
-                </td>
-                <td style="width: 30%" class="py-1 px-4 border">
-                  {{ item.description }}
-                </td>
-                <td style="width: 15%" class="py-1 px-4 border text-center">
-                  {{ item.debit }}
-                </td>
-                <td style="width: 15%" class="py-1 px-4 border text-center">
-                  {{ item.credit }}
-                </td>
-                <td style="width: 15%" class="py-1 px-4 border text-center">
-                  {{ balance[index] }}
-                </td>
-              </tr>
-              <tr class="bg-gray-100">
-                <td style="width: 15%" class="py-1 px-4 border"></td>
-                <td style="width: 15%" class="py-1 px-4 border"></td>
-                <td style="width: 25%" class="py-1 px-4 border font-bold">
-                  Totals
-                </td>
-                <td
-                  style="width: 15%"
-                  class="py-1 px-4 border font-bold text-center"
+                <Button
+                  size="small"
+                  v-if="record.delete && can['delete']"
+                  danger
+                  @click="destroy(record.id)"
+                  >Delete</Button
                 >
-                  {{ debits }}
-                </td>
-                <td
-                  style="width: 15%"
-                  class="py-1 px-4 border font-bold text-center"
-                >
-                  {{ credits }}
-                </td>
-                <td style="width: 15%" class="py-1 px-4 border"></td>
-              </tr>
-            </tbody>
-          </table>
+              </template>
+            </template>
+          </Table>
         </div>
       </form>
     </div>
@@ -174,6 +129,10 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
+import FlashMessage from "@/Layouts/FlashMessage";
+import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
+
 import JetButton from "@/Jetstream/Button";
 import { useForm } from "@inertiajs/inertia-vue3";
 import Multiselect from "@suadelabs/vue3-multiselect";
@@ -181,6 +140,10 @@ import Multiselect from "@suadelabs/vue3-multiselect";
 export default {
   components: {
     AppLayout,
+    FlashMessage,
+    Button,
+    Table,
+    Select,
     JetButton,
     Multiselect,
   },
@@ -201,6 +164,7 @@ export default {
     date_end: Object,
     min_start: Object,
     max_end: Object,
+    mapped_data: Object,
   },
 
   data() {
@@ -208,7 +172,48 @@ export default {
       // co_id: this.$page.props.co_id,
       co_id: this.company,
       options: this.companies,
+      search: "",
+      selected: this.company.name,
       option: this.accounts,
+
+      columns: [
+        {
+          title: "Reference",
+          dataIndex: "ref",
+          // sorter: (a, b) => {
+          //     const nameA = a.name.toUpperCase();
+          //     const nameB = b.name.toUpperCase();
+          //     if (nameA < nameB) {
+          //         return -1;
+          //     }
+          //     if (nameA > nameB) {
+          //         return 1;
+          //     }
+          //     return 0;
+          //     },
+          width: "20%",
+        },
+        {
+          title: "Date",
+          dataIndex: "date",
+        },
+        {
+          title: "Description",
+          dataIndex: "description",
+        },
+        {
+          title: "Debit",
+          dataIndex: "debit",
+        },
+        {
+          title: "Credit",
+          dataIndex: "credit",
+        },
+        {
+          title: "Balance",
+          dataIndex: "balance",
+        },
+      ],
 
       //   form: this.$inertia.form({
       //     account_id: this.account_first.id,
@@ -298,8 +303,8 @@ export default {
     destroy(id) {
       this.$inertia.delete(route("years.destroy", id));
     },
-    coch() {
-      this.$inertia.get(route("companies.coch", this.co_id["id"]));
+    coch(value) {
+      this.$inertia.get(route("companies.coch", value));
     },
   },
 };

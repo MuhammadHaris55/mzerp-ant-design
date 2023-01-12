@@ -79,6 +79,18 @@
             </button>
           </div>
         </form>
+        <!-- <Form :v-model="form" @finish="onSubmit" @finishFailed="onError">
+          <FormItem
+            label="Username"
+            name="username"
+            :rules="[{ required: true, message: 'Please input voucher name!' }]"
+          >
+            <Input v-model:value="form.name" size="small" />
+          </FormItem>
+          <FormItem>
+            <Button type="primary" html-type="submit">Create Voucher</Button>
+          </FormItem>
+        </Form> -->
       </div>
     </div>
   </app-layout>
@@ -87,10 +99,29 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import { useForm } from "@inertiajs/inertia-vue3";
+import FlashMessage from "@/Layouts/FlashMessage";
+import {
+  Form,
+  FormItem,
+  Input,
+  Button,
+  Table,
+  Select,
+  InputSearch,
+} from "ant-design-vue";
+import "ant-design-vue/dist/antd.css";
 
 export default {
   components: {
     AppLayout,
+    FlashMessage,
+    Form,
+    FormItem,
+    Input,
+    Button,
+    Table,
+    Select,
+    InputSearch,
   },
 
   props: {
@@ -112,10 +143,15 @@ export default {
   //     };
   //   },
 
-  //   methods: {
-  //     submit() {
-  //       this.$inertia.post(route("documenttypes.store"), this.form);
-  //     },
-  //   },
+  methods: {
+    //         submit() {
+    //             const response = await fetch("https://some.api/process-form", {
+    //     method: "POST",
+    //     body: _formData,
+    //   },),},
+    //     submit() {
+    //       this.$inertia.post(route("documenttypes.store"), this.form);
+    //     },
+  },
 };
 </script>

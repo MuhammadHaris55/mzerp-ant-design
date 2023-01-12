@@ -23,41 +23,62 @@ class YearController extends Controller
 {
     public function index()
     {
-
-        $query = Year::query();
+        if(request()->has(
+            // ['select', 'search']
+            'search'
+            )){
+            $obj_data = Year::where(
+                // $req->select
+                'name'
+                ,'LIKE', '%'.$req->search.'%')
+            ->where('company_id', session('company_id'))
+            ->get();
+            $mapped_data = $obj_data->map(function($year, $key) {
+            return [
+                    $begin = new Carbon($year->begin),
+                    $end = new Carbon($year->end),
+                    'id' => $year->id,
+                    'closed' => $year->closed,
+                    'begin' => $begin->format('F,j Y'),
+                    'end' => $end->format('F,j Y'),
+                    'company_name' => $year->company->name,
+                    'company_id' => $year->company_id,
+                    'delete' =>
+                    Document::where('year_id', $year->id)->first()
+                        ||
+                        $year->id != Year::where('company_id', session('company_id'))->orderBy('id','desc')->first()->id
+                        ? false : true,
+                ];
+            });
+        }
+        else{
+            $obj_data = Year::where('company_id', session('company_id'))->get();
+            $mapped_data = $obj_data->map(function($year, $key) {
+            return [
+                    $begin = new Carbon($year->begin),
+                    $end = new Carbon($year->end),
+                    'id' => $year->id,
+                    'closed' => $year->closed,
+                    'begin' => $begin->format('F,j Y'),
+                    'end' => $end->format('F,j Y'),
+                    'company_name' => $year->company->name,
+                    'company_id' => $year->company_id,
+                    'delete' =>
+                    Document::where('year_id', $year->id)->first()
+                        ||
+                        $year->id != Year::where('company_id', session('company_id'))->orderBy('id','desc')->first()->id
+                        ? false : true,
+                ];
+            });
+        }
         return Inertia::render('Years/Index', [
-            // 'data' => Year::all()
-            'balances' => $query
-                ->where('company_id', session('company_id'))
-                // ->map(
-                ->paginate(10)
-                ->through(
-                    function ($year) {
-                        return [
-                            $begin = new Carbon($year->begin),
-                            $end = new Carbon($year->end),
-                            'id' => $year->id,
-                            'closed' => $year->closed,
-                            'begin' => $begin->format('F,j Y'),
-                            'end' => $end->format('F,j Y'),
-                            'company_name' => $year->company->name,
-                            'company_id' => $year->company_id,
-                            'delete' =>
-                            Document::where('year_id', $year->id)->first()
-                             ||
-                             $year->id != Year::where('company_id', session('company_id'))->orderBy('id','desc')->first()->id
-                             ? false : true,
-                            // 'delete' => Document::where('year_id', $year->id)->first() || Year::where('company_id', session('company_id'))->where('id', '!=', $year->id)->first() ? false : true,
-                            // 'delete' => Document::where('year_id', $year->id)->first() || $year == Year::where('company_id', session('company_id'))->first() ? false : true,
-                        ];
-                    },
-                ),
-                'can' => [
-                    'edit' => auth()->user()->can('edit'),
-                    'create' => auth()->user()->can('create'),
-                    'delete' => auth()->user()->can('delete'),
-                    'read' => auth()->user()->can('read'),
-                ],
+            'mapped_data' => $mapped_data,
+            'can' => [
+                'edit' => auth()->user()->can('edit'),
+                'create' => auth()->user()->can('create'),
+                'delete' => auth()->user()->can('delete'),
+                'read' => auth()->user()->can('read'),
+            ],
             'company' => Company::where('id', session('company_id'))->first(),
             // 'companies' => Company::all()
             //     ->map(function ($com) {
