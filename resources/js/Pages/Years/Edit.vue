@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <template #header>
-      <h2 class="font-semibold text-xl text-white my-2">Year</h2>
+      <h2 class="font-semibold text-lg text-white p-4">Year</h2>
     </template>
     <div class="">
       <form @submit.prevent="submit">
@@ -30,17 +30,7 @@
           />
           <div v-if="errors.end">{{ errors.end }}</div>
         </div>
-        <div
-          class="
-            px-4
-            py-2
-            bg-gray-200
-            border-t border-gray-200
-            flex
-            ml-60
-            items-center
-          "
-        >
+        <div class="px-4 py-2 flex ml-60 items-center">
           <button
             class="
               border

@@ -2,7 +2,7 @@
   <app-layout>
     <template #header>
       <div class="grid grid-cols-2">
-        <h2 class="font-semibold text-xl text-white my-2">Reports</h2>
+        <h2 class="font-semibold text-lg text-white p-4">Reports</h2>
         <div class="justify-end">
           <select
             v-model="yr_id"
