@@ -2,7 +2,7 @@
   <app-layout>
     <template #header>
       <div class="grid grid-cols-2">
-        <h2 class="font-semibold text-xl text-white my-2">Years</h2>
+        <h2 class="font-semibold text-lg text-white p-4">Years</h2>
         <div class="justify-end">
           <Select
             v-model:value="selected"

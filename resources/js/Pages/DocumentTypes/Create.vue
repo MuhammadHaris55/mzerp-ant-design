@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <template #header>
-      <h2 class="font-semibold text-xl text-white my-2">Create Voucher</h2>
+      <h2 class="font-semibold text-lg text-white p-4">Create Voucher</h2>
     </template>
     <div
       v-if="$page.props.flash.success"
@@ -47,17 +47,7 @@
             </div>
           </div>
 
-          <div
-            class="
-              px-4
-              py-2
-              bg-gray-200
-              border-t border-gray-200
-              flex
-              justify-center
-              items-center
-            "
-          >
+          <div class="px-4 py-2 flex justify-center items-center">
             <button
               class="
                 border

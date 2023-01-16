@@ -2,11 +2,12 @@
 <template>
   <Layout style="min-height: 100vh">
     <LayoutSider v-model:collapsed="collapsed" collapsible>
-      <div class="flex-shrink-0 flex items-center">
+      <div class="logo flex-shrink-0 flex items-center">
         <inertia-link :href="route('dashboard')">
           <jet-application-mark class="block h-9 w-auto" />
         </inertia-link>
       </div>
+      <!-- <div class="logo" /> -->
       <Menu theme="dark" v-model:selectedKeys="selectedKeys" mode="inline">
         <MenuItem key="1">
           <pie-chart-outlined />
@@ -147,7 +148,7 @@
     <Layout>
       <!-- Page Heading -->
       <LayoutHeader class="bg-gray-800 shadow" v-if="$slots.header">
-        <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
           <slot name="header"></slot>
         </div>
       </LayoutHeader>
@@ -240,3 +241,18 @@ export default {
   },
 };
 </script>
+
+<style>
+.ant-layout-sider-children .logo {
+  height: 38px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.site-layout .site-layout-background {
+  background: #fff;
+}
+[data-theme="dark"] .site-layout .site-layout-background {
+  background: #141414;
+}
+</style>

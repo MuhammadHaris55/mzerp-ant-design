@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <template #header>
-      <h2 class="font-semibold text-xl text-white my-2">
+      <h2 class="font-semibold text-lg text-white p-4">
         Dashboard
         <!-- - {{ this.$page.props.co_id }} - {{ this.$page.props.yr_id }} -->
       </h2>
