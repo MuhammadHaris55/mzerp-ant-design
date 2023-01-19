@@ -4,7 +4,7 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-lg text-white p-4">Reports</h2>
         <div class="justify-end">
-          <select
+          <!-- <select
             v-model="yr_id"
             class="
               pr-2
@@ -22,7 +22,19 @@
             <option v-for="type in years" :key="type.id" :value="type.id">
               {{ type.name }}
             </option>
-          </select>
+          </select> -->
+          <Select
+            v-model:value="selected_year"
+            :options="years"
+            :field-names="{ label: 'end', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="yrch"
+            class="w-1/2"
+          />
           <Select
             v-model:value="selected"
             :options="options"
@@ -33,7 +45,7 @@
             placeholder="Please select"
             showArrow
             @change="coch"
-            class="w-full"
+            class="w-1/2"
           />
         </div>
       </div>
@@ -214,10 +226,15 @@ import AppLayout from "@/Layouts/AppLayout";
 import JetButton from "@/Jetstream/Button";
 import { useForm } from "@inertiajs/inertia-vue3";
 import Multiselect from "@suadelabs/vue3-multiselect";
+import { Button, Table, Select, InputSearch } from "ant-design-vue";
 
 export default {
   components: {
     AppLayout,
+    Button,
+    Table,
+    Select,
+    InputSearch,
     JetButton,
     Multiselect,
   },
@@ -230,6 +247,7 @@ export default {
     accounts: Object,
     account_first: Object,
     years: Object,
+    year: Object,
     min_start: Object,
     max_end: Object,
   },
@@ -237,8 +255,12 @@ export default {
   data() {
     return {
       co_id: this.company,
-      yr_id: this.$page.props.yr_id,
       options: this.companies,
+      selected: this.company.name,
+      yr_id: this.$page.props.yr_id,
+      years: this.years,
+      selected_year: this.year.name,
+
       form: {
         date: this.date ? this.date : this.max_end,
         start: this.min_start

@@ -40,17 +40,32 @@ class ReportController extends Controller
             'accounts' => $accounts,
             'company' => Company::where('id', session('company_id'))->first(),
             'companies' => Auth::user()->companies,
-            'years' => Year::all()
-                ->where('company_id', session('company_id'))
-                ->map(function ($year) {
-                    $begin = new Carbon($year->begin);
-                    $end = new Carbon($year->end);
+            // 'years' => Year::all()
+            //     ->where('company_id', session('company_id'))
+            //     ->map(function ($year) {
+            //         $begin = new Carbon($year->begin);
+            //         $end = new Carbon($year->end);
 
-                    return [
-                        'id' => $year->id,
-                        'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
-                    ];
-                }),
+            //         return [
+            //             'id' => $year->id,
+            //             'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
+            //         ];
+            //     }),
+                'years' => Year::where('company_id', session('company_id'))->get(),
+                'year' => Year::all()
+                    ->where('company_id', session('company_id'))
+                    ->where('id', session('year_id'))
+                    ->map(function ($year) {
+                        $begin = new Carbon($year->begin);
+                        $end = new Carbon($year->end);
+
+                        return [
+                            'id' => $year->id,
+                            'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
+                        ];
+                    },
+                )->first(),
+
         ]);
     }
 

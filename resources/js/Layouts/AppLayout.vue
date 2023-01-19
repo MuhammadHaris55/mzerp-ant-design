@@ -152,6 +152,7 @@
           <slot name="header"></slot>
         </div>
       </LayoutHeader>
+      <FlashMessage />
 
       <LayoutContent style="margin: 0 16px">
         <Breadcrumb style="margin: 16px 0">
@@ -169,7 +170,7 @@
         </div>
       </LayoutContent>
       <LayoutFooter style="text-align: center">
-        Ant Design ©2018 Created by Ant UED
+        Copyright © {{ currentYear }}, SA-accounting.
       </LayoutFooter>
     </Layout>
   </Layout>
@@ -182,6 +183,7 @@ import JetDropdown from "@/Jetstream/Dropdown";
 import JetDropdownLink from "@/Jetstream/DropdownLink";
 import JetNavLink from "@/Jetstream/NavLink";
 import JetResponsiveNavLink from "@/Jetstream/ResponsiveNavLink";
+import FlashMessage from "@/Layouts/FlashMessage";
 import "ant-design-vue/dist/antd.css";
 import {
   Layout,
@@ -214,6 +216,12 @@ export default {
     LayoutHeader,
     LayoutContent,
     LayoutFooter,
+    FlashMessage,
+  },
+  computed: {
+    currentYear() {
+      return new Date().getFullYear();
+    },
   },
 
   data() {

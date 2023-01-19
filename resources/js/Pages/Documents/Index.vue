@@ -4,7 +4,7 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-lg text-white p-4">Transactions</h2>
         <div class="justify-end">
-          <select
+          <!-- <select
             v-model="yr_id"
             class="
               pr-2
@@ -22,7 +22,19 @@
             <option v-for="type in years" :key="type.id" :value="type.id">
               {{ type.name }}
             </option>
-          </select>
+          </select> -->
+          <Select
+            v-model:value="selected_year"
+            :options="years"
+            :field-names="{ label: 'end', value: 'id' }"
+            filterOption="true"
+            optionFilterProp="name"
+            mode="single"
+            placeholder="Please select"
+            showArrow
+            @change="yrch"
+            class="w-1/2"
+          />
           <Select
             v-model:value="selected"
             :options="options"
@@ -33,13 +45,11 @@
             placeholder="Please select"
             showArrow
             @change="coch"
-            class="w-full"
+            class="w-1/2 ml-2"
           />
         </div>
       </div>
     </template>
-
-    <FlashMessage />
 
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
       <!-- <div class="p-2 mr-2 mb-2 ml-2 flex flex-wrap"> -->
@@ -232,10 +242,7 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import FlashMessage from "@/Layouts/FlashMessage";
 import { Button, Table, Select, InputSearch } from "ant-design-vue";
-import "ant-design-vue/dist/antd.css";
-
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
 import moment from "moment";
@@ -247,7 +254,6 @@ import { useForm } from "@inertiajs/inertia-vue3";
 export default {
   components: {
     AppLayout,
-    FlashMessage,
     Button,
     Table,
     Select,
@@ -270,6 +276,7 @@ export default {
     companies: Object,
     company: Object,
     years: Object,
+    year: Object,
     yearclosed: Object,
     can: Object,
   },
@@ -288,8 +295,8 @@ export default {
       search: "",
       selected: this.company.name,
       yr_id: this.$page.props.yr_id,
-      search: "",
-      selected: this.company.name,
+      years: this.years,
+      selected_year: this.year.name,
 
       columns: [
         // {

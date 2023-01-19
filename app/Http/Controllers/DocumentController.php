@@ -90,7 +90,7 @@ class DocumentController extends Controller
             });
         }
 
-            return Inertia::render(
+        return Inertia::render(
                 'Documents/Index',
                 [
                     'can' => [
@@ -105,8 +105,24 @@ class DocumentController extends Controller
                     'filters' => request()->all(['search', 'field', 'direction']),
                     'company' => Company::where('id', session('company_id'))->first(),
                     'companies' => auth()->user()->companies,
-                    'years' => Year::all()
+                    'years' => Year::where('company_id', session('company_id'))->get(),
+
+                    // 'years' => Year::all()
+                    //     ->where('company_id', session('company_id'))
+                    //     ->map(function ($year) {
+                    //         $begin = new Carbon($year->begin);
+                    //         $end = new Carbon($year->end);
+
+                    //         return [
+                    //             'id' => $year->id,
+                    //             'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
+                    //         ];
+                    //     },
+                    // ),
+                    // 'year' => Year::find(session('year_id')),
+                    'year' => Year::all()
                         ->where('company_id', session('company_id'))
+                        ->where('id', session('year_id'))
                         ->map(function ($year) {
                             $begin = new Carbon($year->begin);
                             $end = new Carbon($year->end);
@@ -116,7 +132,7 @@ class DocumentController extends Controller
                                 'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
                             ];
                         },
-                    ),
+                    )->first(),
                 ]
             );
         } elseif ($acc) {

@@ -18,13 +18,7 @@
       <!-- :disabled="form.processing" -->
       <!-- </div> -->
     </template>
-    <div v-if="$page.props.flash.warning" class="bg-yellow-600 text-white">
-      {{ $page.props.flash.warning }}
-    </div>
-    <div v-if="$page.props.flash.success" class="bg-green-600 text-white">
-      {{ $page.props.flash.success }}
-    </div>
-
+    <FlashMessage />
     <!-- ---------------------------------------------------------------------------- - - -->
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
