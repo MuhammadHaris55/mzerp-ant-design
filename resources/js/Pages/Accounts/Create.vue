@@ -7,114 +7,66 @@
       {{ $page.props.flash.success }}
     </div>
 
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
-      <div class="">
-        <form @submit.prevent="form.post(route('accounts.store'))">
-          <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Account Name :</label
-            >
-            <input
-              type="text"
-              v-model="form.name"
-              class="
-                pr-2
-                pb-2
-                w-full
-                lg:w-1/4
-                rounded-md
-                placeholder-indigo-300
-              "
-              label="name"
-              placeholder="Enter name:"
-            />
-            <div
-              class="
-                ml-2
-                bg-red-100
-                border border-red-400
-                text-red-700
-                px-4
-                py-2
-                rounded
-                relative
-              "
-              role="alert"
-              v-if="errors.name"
-            >
-              {{ errors.name }}
-            </div>
-          </div>
+    <!-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
+      <div class=""> -->
+    <a-form :form="form" @submit.prevent="submit">
+      <a-form-item label="Name">
+        <a-input
+          v-model:value="form.name"
+          placeholder="Enter your name"
+          style="width: 50%"
+        />
 
-          <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Account Group :</label
-            >
-            <treeselect
-              v-model="form.group"
-              max-height="150"
-              :multiple="false"
-              :options="option"
-              :normalizer="normalizer"
-              v-on:select="treeChange"
-              style="max-width: 300px"
-            />
-            <div
-              class="
-                ml-2
-                bg-red-100
-                border border-red-400
-                text-red-700
-                px-4
-                py-2
-                rounded
-                relative
-              "
-              role="alert"
-              v-if="errors.group"
-            >
-              {{ errors.group }}
-            </div>
-          </div>
-          <div class="px-4 py-2 flex justify-center items-center">
-            <button
-              class="
-                border
-                rounded-xl
-                shadow-md
-                p-1
-                px-4
-                mt-1
-                bg-gray-800
-                text-white
-                ml-2
-                inline-block
-                hover:bg-gray-700 hover:text-white
-              "
-              :disabled="form.processing"
-              type="submit"
-            >
-              Create Account
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
+          {{ errors.name }}
+        </div>
+      </a-form-item>
+
+      <a-form-item label="Group">
+        <a-tree-select
+          v-model:value="form.group"
+          style="width: 50%"
+          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+          :tree-data="option"
+          :field-names="{ label: 'name', value: 'id' }"
+          :treeDataSimpleMode="{ pID: 'parent_id' }"
+          placeholder="Please select Group"
+          tree-default-expand-all
+        >
+        </a-tree-select>
+        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.group">
+          {{ errors.group }}
+        </div>
+      </a-form-item>
+
+      <a-form-item>
+        <a-button type="primary" @click="submitForm">Submit</a-button>
+      </a-form-item>
+    </a-form>
+    <!-- </div>
+    </div> -->
   </app-layout>
 </template>
+
+
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import { useForm } from "@inertiajs/inertia-vue3";
-import Multiselect from "@suadelabs/vue3-multiselect";
-import Treeselect from "vue3-treeselect";
-import "vue3-treeselect/dist/vue3-treeselect.css";
+// import Multiselect from "@suadelabs/vue3-multiselect";
+// import Treeselect from "vue3-treeselect";
+// import "vue3-treeselect/dist/vue3-treeselect.css";
+import { Form, Input, Button, TreeSelect } from "ant-design-vue";
 
 export default {
   components: {
+    "a-tree-select": TreeSelect,
+    "a-form": Form,
+    "a-form-item": Form.Item,
+    "a-input": Input,
+    "a-button": Button,
     AppLayout,
-    Multiselect,
-    Treeselect,
+    useForm,
   },
 
   props: {
@@ -127,17 +79,12 @@ export default {
   data() {
     return {
       option: this.groups,
-      normalizer(node) {
-        return {
-          label: node.name,
-        };
-      },
     };
   },
   setup(props) {
     const form = useForm({
       name: null,
-      number: null,
+      //   email: null,
       group: props.groups_first,
     });
 
@@ -146,18 +93,75 @@ export default {
 
   //   data() {
   //     return {
-  //       form: this.$inertia.form({
-  //         name: null,
-  //         number: null,
-  //         group: this.group_first.id,
-  //       }),
+  //       form: {
+  //         name: "",
+  //         email: "",
+  //       },
   //     };
   //   },
-
-  //   methods: {
-  //     submit() {
-  //       this.$inertia.post(route("accounts.store"), this.form);
-  //     },
-  //   },
+  methods: {
+    submitForm() {
+      //   console.log(this.form);
+      this.$inertia.post(route("accounts.store"), this.form);
+      // Send form data to server using axios or fetch
+    },
+  },
 };
+
+// export default {
+//   components: {
+//     AppLayout,
+//     Multiselect,
+//     Treeselect,
+//     Form,
+//     FormItem,
+//     Select,
+//     SelectOption,
+//     Input,
+//   },
+
+//   props: {
+//     errors: Object,
+//     data: Object,
+//     groups: Array,
+//     group_first: Object,
+//   },
+
+//   data() {
+//     return {
+//       option: this.groups,
+//       normalizer(node) {
+//         return {
+//           label: node.name,
+//         };
+//       },
+//     };
+//   },
+//   setup(props) {
+//     const form = useForm({
+//       name: null,
+//       number: null,
+//       group: props.groups_first,
+//     });
+
+//     return { form };
+//   },
+
+//   //   data() {
+//   //     return {
+//   //       form: this.$inertia.form({
+//   //         name: null,
+//   //         number: null,
+//   //         group: this.group_first.id,
+//   //       }),
+//   //     };
+//   //   },
+
+//   //   methods: {
+//   //     submit() {
+//   //       this.$inertia.post(route("accounts.store"), this.form);
+//   //     },
+//   //   },
+// };
 </script>
+
