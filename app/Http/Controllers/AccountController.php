@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
+// use Illuminate\Http\Request as Req;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Entry;
@@ -110,6 +111,7 @@ class AccountController extends Controller
     {
         // $groups = \App\Models\AccountGroup::where('company_id', session('company_id'))->map->only('id', 'name')->get();
         $groups = AccountGroup::where('company_id', session('company_id'))->tree()->get()->toTree();
+
         $group_first = AccountGroup::all()->where('company_id', session('company_id'))->map->only('id', 'name')->first();
 
         if ($group_first) {
@@ -122,8 +124,11 @@ class AccountController extends Controller
         }
     }
 
-    public function store()
+    public function store(Req $request)
     {
+
+        // dd(Request::input('name'));
+
         Request::validate([
             'name' => ['required'],
             // 'number' => ['nullable'],
@@ -143,7 +148,8 @@ class AccountController extends Controller
 
     public function edit(Account $account)
     {
-        $groups = AccountGroup::all()->where('company_id', session('company_id'))->map->only('id', 'name');
+        // $groups = AccountGroup::all()->where('company_id', session('company_id'))->map->only('id', 'name');
+        $groups = AccountGroup::where('company_id', session('company_id'))->tree()->get()->toTree();
         $group_first = AccountGroup::where('id', $account->group_id)->first();
 
         return Inertia::render('Accounts/Edit', [
@@ -168,7 +174,7 @@ class AccountController extends Controller
         $account->company_id = session('company_id');
         // $account->number = Request::input('number');
         $account->name = Request::input('name');
-        $account->save();
+        $account->update();
 
         return Redirect::route('accounts')->with('success', 'Account updated.');
     }
