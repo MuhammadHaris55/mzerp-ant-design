@@ -20,8 +20,6 @@
       </div>
     </template>
 
-    <FlashMessage />
-
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
       <Button v-if="can['create']" @click="create" class="ml-2"
         >Create Account</Button
@@ -71,9 +69,7 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import FlashMessage from "@/Layouts/FlashMessage";
 import { Button, Table, Select, InputSearch } from "ant-design-vue";
-import "ant-design-vue/dist/antd.css";
 
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
@@ -84,7 +80,6 @@ import Multiselect from "@suadelabs/vue3-multiselect";
 export default {
   components: {
     AppLayout,
-    FlashMessage,
     Button,
     Table,
     Select,

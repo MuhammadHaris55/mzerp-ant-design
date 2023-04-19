@@ -20,8 +20,6 @@
       </div>
     </template>
 
-    <FlashMessage />
-
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
       <Button v-if="can['create']" @click="create" class="ml-2">Create</Button>
       <Button v-if="exists && can['create']" @click="generate" class="ml-2"
@@ -72,9 +70,7 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import FlashMessage from "@/Layouts/FlashMessage";
 import { Button, Table, Select, InputSearch } from "ant-design-vue";
-import "ant-design-vue/dist/antd.css";
 
 import { ref } from "vue";
 import { Inertia } from "@inertiajs/inertia";
@@ -82,7 +78,6 @@ import { Inertia } from "@inertiajs/inertia";
 export default {
   components: {
     AppLayout,
-    FlashMessage,
     Button,
     Table,
     Select,
