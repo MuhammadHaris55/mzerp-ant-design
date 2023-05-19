@@ -17,18 +17,20 @@ class AccountGroupController extends Controller
 {
     public function index(Req $req)
     {
-        if(request()->has(
+        if (request()->has(
             // ['select', 'search']
             'search'
-            )){
+        )) {
             $obj_data = AccountGroup::where(
                 // $req->select
-                'name'
-                ,'LIKE', '%'.$req->search.'%')
-            ->where('company_id', session('company_id'))
-            ->get();
-            $mapped_data = $obj_data->map(function($acc_group, $key) {
-            return [
+                'name',
+                'LIKE',
+                '%' . $req->search . '%'
+            )
+                ->where('company_id', session('company_id'))
+                ->get();
+            $mapped_data = $obj_data->map(function ($acc_group, $key) {
+                return [
                     'id' => $acc_group->id,
                     'name' => $acc_group->name,
                     'type_id' => $acc_group->type_id,
@@ -38,11 +40,11 @@ class AccountGroupController extends Controller
                     'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
                 ];
             });
-        }
-        else{
+        } else {
             $obj_data = AccountGroup::where('company_id', session('company_id'))->get();
-            $mapped_data = $obj_data->map(function($acc_group, $key) {
-            return [
+
+            $mapped_data = $obj_data->map(function ($acc_group, $key) {
+                return [
                     'id' => $acc_group->id,
                     'name' => $acc_group->name,
                     'type_id' => $acc_group->type_id,
@@ -127,7 +129,8 @@ class AccountGroupController extends Controller
     public function edit(AccountGroup $accountgroup)
     {
         $accountgroup = AccountGroup::where('id', $accountgroup->id)->get()
-            ->map(function ($accountgroup) {
+            ->map(
+                function ($accountgroup) {
                     return
                         [
                             'id' => $accountgroup->id,

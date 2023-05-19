@@ -1,91 +1,71 @@
 <template>
-  <app-layout>
-    <template #header>
-      <h2 class="font-semibold text-lg text-white p-4">Year</h2>
-    </template>
-    <div class="">
-      <form @submit.prevent="submit">
-        <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-          <label class="my-2 mr-8 text-right w-36 font-bold"
-            >Begin Date :</label
-          >
-          <input
-            type="date"
-            v-model="form.begin"
-            label="date"
-            placeholder="Enter Begin date:"
-            class="pr-2 pb-2 rounded-md placeholder-indigo-300"
-          />
-          <div v-if="errors.begin">{{ errors.begin }}</div>
-        </div>
+    <app-layout>
+        <template #header>
+            <h2 class="header">Year</h2>
+        </template>
+        <div class="">
+            <a-form :form="form" @submit.prevent="submit" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
+                <a-form-item label="Begin Date">
+                    <a-input type="date" class="w-full" v-model:value="form.begin" />
 
-        <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-          <label class="my-2 mr-8 text-right w-36 font-bold">End Date :</label>
-          <input
-            type="date"
-            v-model="form.end"
-            class="pr-2 pb-2 rounded-md placeholder-indigo-300"
-            label="date"
-            placeholder="Enter End date:"
-          />
-          <div v-if="errors.end">{{ errors.end }}</div>
+                    <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.begin">
+                        {{ errors.begin }}
+                    </div>
+                </a-form-item>
+
+                <a-form-item label="End Date">
+                    <a-input class="w-full" type="date" v-model:value="form.end" />
+
+                    <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.end">
+                        {{ errors.end }}
+                    </div>
+                </a-form-item>
+                <!-- :wrapper-col="{ span: 14, offset: 4 }" -->
+                <a-form-item class="text-right">
+                    <a-button type="primary" @click="submit">Update Year</a-button>
+                </a-form-item>
+            </a-form>
         </div>
-        <div class="px-4 py-2 flex ml-60 items-center">
-          <button
-            class="
-              border
-              rounded-xl
-              shadow-md
-              p-1
-              px-4
-              mt-1
-              bg-gray-800
-              text-white
-              ml-2
-              inline-block
-              hover:bg-gray-700 hover:text-white
-            "
-            type="submit"
-          >
-            Update Year
-          </button>
-        </div>
-      </form>
-    </div>
-  </app-layout>
+    </app-layout>
 </template>
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-// import Datepicker from "vue3-datepicker";
-import format from "date-fns/format";
-import Input from "../../Jetstream/Input.vue";
+import { Form, Input, Button, } from "ant-design-vue";
 
 export default {
-  components: {
-    AppLayout,
-    // Datepicker,
-    Input,
-  },
-
-  props: {
-    errors: Object,
-    year: Object,
-  },
-
-  data() {
-    return {
-      form: {
-        begin: this.year.begin,
-        end: this.year.end,
-      },
-    };
-  },
-
-  methods: {
-    submit() {
-      this.$inertia.put(route("years.update", this.year.id), this.form);
+    components: {
+        AppLayout,
+        "a-form": Form,
+        "a-form-item": Form.Item,
+        "a-input": Input,
+        "a-button": Button,
     },
-  },
+
+    props: {
+        errors: Object,
+        year: Object,
+    },
+
+    data() {
+        return {
+            form: {
+                // begin: moment(this.year.begin, "YYYY-MM-DD"),
+                // end: moment(this.year.end, "YYYY-MM-DD"),
+                begin: this.year.begin
+                    ? this.year.begin
+                    : null,
+                end: this.year.end
+                    ? this.year.end
+                    : null,
+            },
+        };
+    },
+
+    methods: {
+        submit() {
+            this.$inertia.put(route("years.update", this.year.id), this.form);
+        },
+    },
 };
 </script>

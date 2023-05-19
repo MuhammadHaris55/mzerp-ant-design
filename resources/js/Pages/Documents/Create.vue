@@ -11,93 +11,52 @@
           "
         >
           <!-- DOCUMENT TYPE ID -->
-          <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Select Voucher :</label
-            >
-            <multiselect
-              style="width: 25%"
-              class="rounded-md border border-black"
-              v-model="form.type_id"
-              :options="doc_"
-              placeholder="Select Voucher"
-              label="name"
-              track-by="id"
-            ></multiselect>
-            <!-- <select
-              v-model="form.type_id"
-              class="pr-2 pb-2 w-full lg:w-1/4 rounded-md"
-              label="voucher"
-            >
-              <option v-for="type in doc_types" :key="type.id" :value="type.id">
-                {{ type.name }}
-              </option>
-            </select> -->
-            <div v-if="errors.type">{{ errors.type }}</div>
-          </div>
-          <!-- DESCRIPTION -->
-          <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Description :</label
-            ><input
-              type="text"
-              v-model="form.description"
-              class="
-                pr-2
-                pb-2
-                w-full
-                lg:w-1/4
-                rounded-md
-                placeholder-indigo-300
-              "
-              label="description"
-              placeholder="Enter Description"
-            />
-            <div
-              class="
-                ml-2
-                bg-red-100
-                border border-red-400
-                text-red-700
-                px-4
-                py-2
-                rounded
-                relative
-              "
-              role="alert"
-              v-if="errors.description"
-            >
-              {{ errors.description }}
-            </div>
-          </div>
-          <!-- DATE -->
-          <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <!-- v-model="form.date_end" -->
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Select Date :</label
-            ><input
-              type="date"
-              v-model="form.date"
-              class="pr-2 pb-2 rounded-md placeholder-indigo-300"
-              label="date"
-              placeholder="Enter Date:"
-              name="date"
-              :min="form.start"
-              :max="form.end"
-              required
-            />
-            <div v-if="errors.date">{{ errors.date }}</div>
-          </div>
-          <!-- <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-          <datepicker
-            v-model="form.date"
-            class="pr-2 pb-2 w-full rounded-md placeholder-indigo-300"
-            label="date"
-            placeholder="Enter Date:"
-          />
-          <div v-if="errors.date">{{ errors.date }}</div>
-        </div> -->
+         <a-form-item label="Select Voucher" :label-col="{ span: 4 }"
+                        :wrapper-col="{ span: 14 }">
+              <a-select
+                v-model:value="form.type_id"
+                show-search
+                :options="doc_"
+                :field-names="{ label: 'name', value: 'id' }"
+                filterOption="true"
+                optionFilterProp="name"
+                mode="single"
+                placeholder="Select Voucher"
+                showArrow
+              />
+            <div v-if="errors.type_id">{{ errors.type_id }}</div>
+         </a-form-item>
 
+          <a-form-item label="Description :" :label-col="{ span: 4 }"
+                    :wrapper-col="{ span: 14 }">
+            <a-textarea v-model:value="form.description" placeholder="Enter your Description" />
+
+            <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.description">
+                {{ errors.description }}
+            </div>
+         </a-form-item>
+
+        <a-form-item label="Select Date :" :label-col="{ span: 4 }"
+                    :wrapper-col="{ span: 14 }">
+                            <!-- <a-datePicker v-model:value="form.incorp" /> -->
+            <a-input
+            v-model:value="form.date"
+            type="date"
+            :min="form.start"
+            :max="form.end"
+            required
+            />
+            <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.date">
+                {{ errors.date }}
+            </div>
+        </a-form-item>
+
+        <a-form-item v-if="errors.entries" style="color: #c53a2e" label="Error :" :label-col="{ span: 4 }"
+                    :wrapper-col="{ span: 14 }">
+            <div v-if="errors.entries" class="bg-red-100 border px-4 border-red-400 text-red-700  rounded" role="alert">
+                {{ errors.entries }}
+            </div>
+        </a-form-item>
           <!-- TABLE FOR ENTRIES ---- START ------------- -->
           <div class="panel-body flex justify-center items-start">
             <table class="table flex">
@@ -110,78 +69,70 @@
               </thead>
               <tbody>
                 <tr v-for="(entry, index) in form.entries" :key="entry.id">
-                  <td class="w-96">
-                    <multiselect
-                      class="rounded-md border border-black"
-                      v-model="entry.account_id"
-                      :options="option"
-                      placeholder="Select account"
-                      label="name"
-                      track-by="id"
-                    ></multiselect>
-                    <!-- style="width: 25%" -->
-                    <!-- <select v-model="entry.account_id" class="rounded-md w-72">
-                      <option
-                        v-for="account in accounts"
-                        :key="account.id"
-                        :value="account.id"
-                      >
-                        {{ account.name }}
-                      </option>
-                    </select> -->
-                  </td>
                   <td>
-                    <input
-                      v-model="entry.debit"
+                    <a-select
+                    style="width:100%"
+                    show-search
+                    v-model:value="entry.account_id"
+                    :options="option"
+                    :field-names="{ label: 'name', value: 'id' }"
+                    filterOption="true"
+                    optionFilterProp="name"
+                    mode="single"
+                    placeholder="Select Account"
+                    showArrow
+                    />
+
+
+                    <div class="text-red-700 px-4" role="alert" v-if="errors['entries.' + index + '.account_id']">
+                                {{ errors['entries.' + index + '.account_id'] }}
+                    </div>
+                </td>
+                  <td>
+                    <a-input
+                      v-model:value="entry.debit"
                       type="number"
                       @change="debitchange(index)"
                       class="rounded-md w-36"
                     />
+                    <div class="text-red-700 px-4" role="alert" v-if="errors['entries.' + index + '.account_id']">
+                    {{ ' - ' }}
+                    </div>
                   </td>
                   <td>
-                    <input
-                      v-model="entry.credit"
+                    <a-input
+                      v-model:value="entry.credit"
                       type="number"
                       @change="creditchange(index)"
                       class="rounded-md w-36"
                     />
-                  </td>
-                  <td>
-                    <button
+                    <div class="text-red-700 px-4" role="alert" v-if="errors['entries.' + index + '.account_id']">
+                    {{ ' - ' }}
+                    </div>
+                </td>
+                  <td  v-if="index > 0">
+                    <a-button
                       @click.prevent="deleteRow(index)"
                       v-if="index > 1"
-                      class="
-                        border
-                        bg-red-500
-                        rounded-full
-                        px-6
-                        py-1
-                        m-1
-                        hover:text-white hover:bg-red-600
-                      "
+                      type="danger"
                     >
                       Delete
-                    </button>
-                    <button
+                    </a-button>
+                     <div class="text-red-700 px-4" role="alert" v-if="errors['entries.' + index + '.account_id']">
+                        {{ ' - ' }}
+                    </div>
+                    <a-button
                       v-else-if="index == 1"
-                      class="
-                        border
-                        bg-indigo-300
-                        rounded-full
-                        px-4
-                        py-1
-                        m-1
-                        hover:text-white hover:bg-indigo-400
-                      "
-                      type="button"
+                      type="primary"
                       @click.prevent="addRow"
-                    >
+                      ghost
+                      >
                       Add Row
-                    </button>
-                    <div v-else class="border rounded-full px-4 py-1 m-1"></div>
+                    </a-button>
+                    <div v-else></div>
                   </td>
-                </tr>
 
+                </tr>
                 <tr>
                   <th>Difference:</th>
                   <th>Debit:</th>
@@ -191,25 +142,25 @@
 
                 <tr>
                   <td>
-                    <input
+                    <a-input
                       type="number"
-                      v-model="difference"
+                      v-model:value="difference"
                       readonly
                       class="rounded-md w-full"
                     />
                   </td>
                   <td>
-                    <input
+                    <a-input
                       type="number"
-                      v-model="debit"
+                      v-model:value="debit"
                       readonly
                       class="rounded-md w-36"
                     />
                   </td>
                   <td>
-                    <input
+                    <a-input
                       type="number"
-                      v-model="credit"
+                      v-model:value="credit"
                       readonly
                       class="rounded-md w-36"
                     />
@@ -238,25 +189,14 @@
           </div>
           <!-- TABLE FOR ENTRIES ---- END ------------- -->
           <div class="px-4 py-2 flex justify-center items-center">
-            <button
-              class="
-                border
-                rounded-xl
-                shadow-md
-                p-1
-                px-4
-                mt-4
-                bg-gray-800
-                text-white
-                ml-2
-                inline-block
-                hover:bg-gray-700 hover:text-white
-              "
+             <a-button type="primary" :disabled="form.processing" htmlType="submit">  Create Transaction
+            </a-button>
+            <!-- <a-button
               type="submit"
               :disabled="form.processing"
             >
               Create Transaction
-            </button>
+            </a-button> -->
           </div>
         </form>
       </div>
@@ -271,6 +211,13 @@ import { useForm } from "@inertiajs/inertia-vue3";
 import Datepicker from "vue3-datepicker";
 import format from "date-fns/format";
 import Multiselect from "@suadelabs/vue3-multiselect";
+import {
+    Form,
+    Input,
+    Button,
+    Select,
+} from "ant-design-vue";
+
 
 export default {
   components: {
@@ -278,6 +225,12 @@ export default {
     Datepicker,
     Multiselect,
     format,
+    "a-form": Form,
+    "a-form-item": Form.Item,
+    "a-input": Input,
+    "a-textarea": Input.TextArea,
+    "a-button": Button,
+    "a-select": Select,
   },
 
   props: {
@@ -297,7 +250,6 @@ export default {
     return {
       option: this.accounts,
       doc_: this.doc_types,
-
       difference: null,
       credit: 0,
       debit: 0,
@@ -327,19 +279,19 @@ export default {
   setup(props) {
     const form = useForm({
       // type_id: props.doc_types[0].id,
-      type_id: props.doc_types[0],
+      type_id: props.doc_types[0].id,
       date: null,
       description: null,
 
       entries: [
         {
           // account_id: props.account_first.id,
-          account_id: props.accounts[0],
+          account_id: props.accounts[0].id,
           debit: 0,
           credit: 0,
         },
         {
-          account_id: props.accounts[1],
+          account_id: props.accounts[1].id,
           debit: 0,
           credit: 0,
         },
@@ -357,7 +309,7 @@ export default {
 
   methods: {
     func() {
-      alert("Please fill all Input fields");
+      alert("Please fill all Input fields Diffrence not equal to 0");
     },
     // submit() {
     //   if (this.difference === 0) {
@@ -409,11 +361,11 @@ export default {
         debit: 0,
         credit: 0,
       });
-      count += 1;
-      console.log(count);
     },
     deleteRow(index) {
-      this.form.entries.splice(index, 1);
+     this.creditchange(index);
+     this.debitchange(index);
+     this.form.entries.splice(index, 1);
     },
   },
   watch: {

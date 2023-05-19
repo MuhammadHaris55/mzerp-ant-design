@@ -54,11 +54,12 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
       <!-- <div class="p-2 mr-2 mb-2 ml-2 flex flex-wrap"> -->
 
-      <Button v-if="yearclosed && can['create']" @click="create" class="ml-2"
+      <Button v-if="yearclosed && can['create']" size="small" @click="create" class="ml-2"
         >Create</Button
       >
 
       <InputSearch
+        size="small"
         class="ml-2"
         v-model:value="search"
         placeholder="input search text"
@@ -68,15 +69,17 @@
 
       <div v-if="can['create']" class="mt-2">
         <form @submit.prevent="submit">
-          <input
-            class="ml-4 border-gray-800 w-1/4 ring-gray-800 ring-1 outline-none"
-            type="file"
-            placeholder="Upload Excel Sheet"
-            title="Upload Excel Sheet"
-            v-on:change="onFileChange"
-            accept=".xlsx"
-          />
-          <div
+          <a-input
+            style="width: 30%; font-size: 12px;"
+             size="small"
+             type="file"
+             placeholder="Upload Excel Sheet"
+             title="Upload Excel Sheet"
+             v-on:change="onFileChange"
+             accept=".xlsx"
+             />
+             <!-- class="ml-4 border-gray-800 w-1/4 ring-gray-800 ring-1 outline-none" -->
+             <div
             class="
               ml-2
               bg-red-100
@@ -92,7 +95,8 @@
           >
             {{ errors.file }}
           </div>
-          <button
+          <Button class="ml-2" size="small" :disabled="form.processing" type="button" htmlType="submit">Upload Sales Sheet</Button>
+          <!-- <button
             class="
               inline-flex
               items-center
@@ -116,57 +120,20 @@
             type="submit"
           >
             Upload Sales Sheet
-          </button>
+          </button> -->
           <a
-            class="
-              inline-flex
-              items-center
-              px-4
-              py-2
-              bg-gray-800
-              border border-transparent
-              rounded-md
-              font-bold
-              text-xs text-white
-              uppercase
-              tracking-widest
-              hover:bg-gray-700
-              active:bg-gray-900
-              focus:outline-none focus:border-gray-900 focus:shadow-outline-gray
-              transition
-              ease-in-out
-              duration-150
-              ml-2
-            "
-            type="button"
+            class="ant-btn ant-btn-sm ml-2"
+            type="primary"
+            ghost
             :href="'documents/downloadFile'"
           >
             <!-- @click="downloadFormat" -->
             Download Sales Format
           </a>
-          <a
-            class="
-              inline-flex
-              items-center
-              px-4
-              py-2
-              bg-gray-800
-              border border-transparent
-              rounded-md
-              font-bold
-              text-xs text-white
-              uppercase
-              tracking-widest
-              hover:bg-gray-700
-              active:bg-gray-900
-              focus:outline-none focus:border-gray-900 focus:shadow-outline-gray
-              transition
-              ease-in-out
-              duration-150
-              ml-2
-            "
-            type="button"
+          <a class="ant-btn ant-btn-sm  ml-2"
+            type="primary"
             target="_blank"
+            ghost
             :href="'documents/Accountpdf'"
           >
             <!-- @click="downloadFormat" -->
@@ -218,20 +185,7 @@
                 @click="destroy(record.id)"
                 >Delete</Button
               >
-              <div
-                class="
-                  border
-                  bg-gray-300
-                  text-md
-                  rounded-full
-                  shadow-md
-                  px-4
-                  inline-block
-                  hover:bg-gray-700 hover:text-white
-                "
-              >
-                <a :href="'pd/' + record.id" target="_blank">Voucher in PDF</a>
-              </div>
+            <a :href="'pd/' + record.id" target="_blank" class="ant-btn ant-btn-sm">Voucher in PDF</a>
             </template>
           </template>
         </Table>
@@ -242,7 +196,7 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import { Button, Form , Input ,Table, Select, InputSearch , Anchor } from "ant-design-vue";
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
 import moment from "moment";
@@ -266,6 +220,12 @@ export default {
     moment,
     Multiselect,
     useForm,
+
+
+      "a-form": Form,
+        "a-form-item": Form.Item,
+        "a-input": Input,
+        "a-anchor-link":  Anchor,
   },
 
   props: {

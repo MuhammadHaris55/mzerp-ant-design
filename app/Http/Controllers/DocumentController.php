@@ -16,6 +16,7 @@ use Inertia\Inertia;
 use Carbon\Carbon;
 use Exception;
 use PhpParser\Comment\Doc;
+use App\Rules\UniqueAccountIds;
 
 class DocumentController extends Controller
 {
@@ -34,63 +35,61 @@ class DocumentController extends Controller
 
         if ($acc && $doc_ty) {
 
-                // ['select', 'search']
-            if(request()->has('search'))
-            {
+            // ['select', 'search']
+            if (request()->has('search')) {
                 $search_word = $req->search;
-            $obj_data = Document::select("*")
-                ->where(function ($query) use ($search_word){
-                    $query
-                        ->where('company_id', session('company_id'))
-                        ->where('year_id', session('year_id'))
-                        ->where('description', 'LIKE', '%' . $search_word . '%');
-                })->orWhere(function($query) use ($search_word){
-                    $query
-                        ->where('company_id', session('company_id'))
-                        ->where('year_id', session('year_id'))
-                        ->where('ref', 'LIKE', '%' . $search_word . '%');
-                })->orWhere(function($query) use ($search_word){
-                    $query
-                        ->where('company_id', session('company_id'))
-                        ->where('year_id', session('year_id'))
-                        ->where('date', 'LIKE', '%' . $search_word . '%');
-                })->get();
-            $mapped_data = $obj_data->map(function($document, $key) {
-            return [
-                    'id' => $document->id,
-                    'ref' => $document->ref,
+                $obj_data = Document::select("*")
+                    ->where(function ($query) use ($search_word) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->where('description', 'LIKE', '%' . $search_word . '%');
+                    })->orWhere(function ($query) use ($search_word) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->where('ref', 'LIKE', '%' . $search_word . '%');
+                    })->orWhere(function ($query) use ($search_word) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->where('date', 'LIKE', '%' . $search_word . '%');
+                    })->get();
+                $mapped_data = $obj_data->map(function ($document, $key) {
+                    return [
+                        'id' => $document->id,
+                        'ref' => $document->ref,
 
-                    $date = new Carbon($document->date),
-                    'date' => $date->format('M d, Y'),
-                    'description' => $document->description,
-                    'type_id' => $document->type_id,
-                    'company_id' => session('company_id'),
-                    'year_id' => session('year_id'),
-                    'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
-                ];
-            });
-        }
-        else{
-            $obj_data = Document::where('company_id', session('company_id'))
-                ->where('year_id', session('year_id'))
-                ->get();
-            $mapped_data = $obj_data->map(function($document, $key) {
-            return [
-                    'id' => $document->id,
-                    'ref' => $document->ref,
+                        $date = new Carbon($document->date),
+                        'date' => $date->format('M d, Y'),
+                        'description' => $document->description,
+                        'type_id' => $document->type_id,
+                        'company_id' => session('company_id'),
+                        'year_id' => session('year_id'),
+                        'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
+                    ];
+                });
+            } else {
+                $obj_data = Document::where('company_id', session('company_id'))
+                    ->where('year_id', session('year_id'))
+                    ->get();
+                $mapped_data = $obj_data->map(function ($document, $key) {
+                    return [
+                        'id' => $document->id,
+                        'ref' => $document->ref,
 
-                    $date = new Carbon($document->date),
-                    'date' => $date->format('M d, Y'),
-                    'description' => $document->description,
-                    'type_id' => $document->type_id,
-                    'company_id' => session('company_id'),
-                    'year_id' => session('year_id'),
-                    'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
-                ];
-            });
-        }
+                        $date = new Carbon($document->date),
+                        'date' => $date->format('M d, Y'),
+                        'description' => $document->description,
+                        'type_id' => $document->type_id,
+                        'company_id' => session('company_id'),
+                        'year_id' => session('year_id'),
+                        'delete' => Entry::where('document_id', $document->id)->first() ? false : true,
+                    ];
+                });
+            }
 
-        return Inertia::render(
+            return Inertia::render(
                 'Documents/Index',
                 [
                     'can' => [
@@ -123,16 +122,17 @@ class DocumentController extends Controller
                     'year' => Year::all()
                         ->where('company_id', session('company_id'))
                         ->where('id', session('year_id'))
-                        ->map(function ($year) {
-                            $begin = new Carbon($year->begin);
-                            $end = new Carbon($year->end);
+                        ->map(
+                            function ($year) {
+                                $begin = new Carbon($year->begin);
+                                $end = new Carbon($year->end);
 
-                            return [
-                                'id' => $year->id,
-                                'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
-                            ];
-                        },
-                    )->first(),
+                                return [
+                                    'id' => $year->id,
+                                    'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
+                                ];
+                            },
+                        )->first(),
                 ]
             );
         } elseif ($acc) {
@@ -182,16 +182,27 @@ class DocumentController extends Controller
 
     public function store(Req $request)
     {
-        Request::validate([
-            'type_id' => ['required'],
-            'description' => ['required'],
-            'date' => ['required', 'date'],
 
-            'entries.*.account_id' => ['required'],
-            'entries.*.debit' => ['required'],
-            'entries.*.credit' => ['required'],
+        $validatedData = $request->validate([
+            'type_id' => 'required',
+            'date' => 'required|date',
+            'description' => 'required',
+            'entries' => ['required', 'array', new UniqueAccountIds],
+            'entries.*.account_id' => 'required',
+            'entries.*.debit' => 'required_without:entries.*.credit|numeric',
+            'entries.*.credit' => 'required_without:entries.*.debit|numeric',
+
         ]);
+        // Request::validate([
+        //     'type_id' => ['required'],
+        //     'description' => ['required'],
+        //     'date' => ['required', 'date'],
+        //     'entries.*.account_id' => 'required|integer',
+        //     'entries.*.debit' => 'required|numeric|min:0',
+        //     'entries.*.credit' => 'required|numeric|min:0',
+        // ]);
 
+        dd($request->all());
 
         DB::transaction(function () use ($request) {
             $date = new Carbon($request->date);
@@ -308,20 +319,21 @@ class DocumentController extends Controller
                 'min_start' => $date_range->begin,
                 'max_end' => $date_range->end,
                 'can' => [
-                        'edit' => auth()->user()->can('edit'),
-                        'create' => auth()->user()->can('create'),
-                        'delete' => auth()->user()->can('delete'),
-                        'read' => auth()->user()->can('read'),
-                    ],
+                    'edit' => auth()->user()->can('edit'),
+                    'create' => auth()->user()->can('create'),
+                    'delete' => auth()->user()->can('delete'),
+                    'read' => auth()->user()->can('read'),
+                ],
             ]
         );
     }
 
     // public function update(Document $document)
-    public function update(Req $request, Document $document
-    // Entry $entry
-    )
-    {
+    public function update(
+        Req $request,
+        Document $document
+        // Entry $entry
+    ) {
         Request::validate([
             'type_id' => ['required'],
             'description' => ['required'],
@@ -416,45 +428,44 @@ class DocumentController extends Controller
         return response()->download(public_path() . "/sales_trial.xlsx");
     }
 
-      public function Accountpdf()
+    public function Accountpdf()
     {
         $accounts = Account::where('company_id', session('company_id'))->get()
-        ->map(function ($account){
-            return[
-                'id' => $account->id,
-                'number' => $account->number,
-                'name' => $account->name . " - " . $account->accountGroup->name,
-                // 'acc_grp' => $account->accountGroup->name,
-            ];
-        });
+            ->map(function ($account) {
+                return [
+                    'id' => $account->id,
+                    'number' => $account->number,
+                    'name' => $account->name . " - " . $account->accountGroup->name,
+                    // 'acc_grp' => $account->accountGroup->name,
+                ];
+            });
         // dd($accounts);
         if ($accounts) {
 
             $year = Year::where('company_id', session('company_id'))
-            ->where('id', session('year_id'))->first();
+                ->where('id', session('year_id'))->first();
             $end = $year->end ? new Carbon($year->end) : null;
 
             $names = str_replace(["&"], "&amp;", $year->company->name);
             $endDate = $end->format("F j Y");
-        //     //   $a = "hello world";
+            //     //   $a = "hello world";
 
-        //     $confirmation = BankConfirmation::where('company_id', session('company_id'))->get()
-        //     ->map(function ($confirm){
-        //         return[
-        //             'id' => $confirm->id,
-        //             'branch' => $confirm->bankBranch->bank->name . " - " . $confirm->bankBranch->address,
-        //         ];
-        //     });
-        //     // dd($confirmation);
+            //     $confirmation = BankConfirmation::where('company_id', session('company_id'))->get()
+            //     ->map(function ($confirm){
+            //         return[
+            //             'id' => $confirm->id,
+            //             'branch' => $confirm->bankBranch->bank->name . " - " . $confirm->bankBranch->address,
+            //         ];
+            //     });
+            //     // dd($confirmation);
 
 
-        $pdf = app('dompdf.wrapper');
-        $pdf->getDomPDF()->set_option("enable_php", true);
-        $pdf->loadView('accountpdf', compact('names', 'endDate' ,'accounts'));
-        return $pdf->stream($names ." ".'Account.pdf');
-        }else{
+            $pdf = app('dompdf.wrapper');
+            $pdf->getDomPDF()->set_option("enable_php", true);
+            $pdf->loadView('accountpdf', compact('names', 'endDate', 'accounts'));
+            return $pdf->stream($names . " " . 'Account.pdf');
+        } else {
             return Redirect::route('accounts.create')->with('success', 'Create Account first.');
-
         }
     }
 }

@@ -9,12 +9,12 @@
 
     <!-- <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
       <div class=""> -->
-    <a-form :form="form" @submit.prevent="submit">
+    <a-form :form="form" @submit.prevent="form.post(route('accounts.store'))" :label-col="{ span: 4 }"
+                        :wrapper-col="{ span: 14 }">
       <a-form-item label="Name">
         <a-input
           v-model:value="form.name"
           placeholder="Enter your name"
-          style="width: 50%"
         />
 
         <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
@@ -23,24 +23,29 @@
       </a-form-item>
 
       <a-form-item label="Group">
+          <!-- filterOption="(input, node) => node.name.toLowerCase().indexOf(input.toLowerCase()) > -1" -->
         <a-tree-select
           v-model:value="form.group"
-          style="width: 50%"
           :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
           :tree-data="option"
           :field-names="{ label: 'name', value: 'id' }"
+          show-search
+          filterOption="true"
+           treeNodeFilterProp="name"
           :treeDataSimpleMode="{ pID: 'parent_id' }"
           placeholder="Please select Group"
           tree-default-expand-all
-        >
+          >
+          <!-- filterOption="true"  -->
         </a-tree-select>
         <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.group">
           {{ errors.group }}
         </div>
       </a-form-item>
 
-      <a-form-item>
-        <a-button type="primary" @click="submitForm">Submit</a-button>
+      <a-form-item class="text-right">
+           <a-button type="primary" :disabled="form.processing" htmlType="submit">Submit</a-button>
+        <!-- <a-button type="primary" :disabled="form.processing"  @click="submitForm">Submit</a-button> -->
       </a-form-item>
     </a-form>
     <!-- </div>

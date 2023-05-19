@@ -3,51 +3,29 @@
     <template #header>
       <h2 class="font-semibold text-lg text-white p-4">Create Voucher</h2>
     </template>
-    <div
+    <!-- <div
       v-if="$page.props.flash.success"
       class="bg-yellow-600 text-white text-center"
     >
       {{ $page.props.flash.success }}
-    </div>
+    </div> -->
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
       <div class="">
-        <form @submit.prevent="form.post(route('documenttypes.store'))">
-          <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Voucher Name :</label
-            ><input
-              type="text"
-              v-model="form.name"
-              class="
-                pr-2
-                pb-2
-                w-full
-                lg:w-1/4
-                rounded-md
-                placeholder-indigo-300
-              "
-              label="name"
-              placeholder="Enter Voucher name:"
-            />
-            <div
-              class="
-                ml-2
-                bg-red-100
-                border border-red-400
-                text-red-700
-                px-4
-                py-2
-                rounded
-                relative
-              "
-              role="alert"
-              v-if="errors.name"
-            >
-              {{ errors.name }}
-            </div>
-          </div>
+        <a-form @submit.prevent="form.post(route('documenttypes.store'))" :label-col="{ span: 4 }"
+                        :wrapper-col="{ span: 14 }">
+           <a-form-item label="Voucher Name :">
+                <a-input v-model:value="form.name" placeholder="Enter your name" />
 
-          <div class="px-4 py-2 flex justify-center items-center">
+
+                <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
+                    {{ errors.name }}
+                </div>
+            </a-form-item>
+
+          <a-form-item class="text-right">
+            <a-button type="primary" :disabled="form.processing" htmlType="submit">Submit</a-button>
+            </a-form-item>
+          <!-- <div class="px-4 py-2 flex justify-center items-center">
             <button
               class="
                 border
@@ -67,8 +45,8 @@
             >
               Create Voucher
             </button>
-          </div>
-        </form>
+          </div> -->
+        </a-form>
         <!-- <Form :v-model="form" @finish="onSubmit" @finishFailed="onError">
           <FormItem
             label="Username"
@@ -95,9 +73,7 @@ import {
   FormItem,
   Input,
   Button,
-  Table,
-  Select,
-  InputSearch,
+
 } from "ant-design-vue";
 import "ant-design-vue/dist/antd.css";
 
@@ -105,13 +81,10 @@ export default {
   components: {
     AppLayout,
     FlashMessage,
-    Form,
-    FormItem,
-    Input,
-    Button,
-    Table,
-    Select,
-    InputSearch,
+    "a-form": Form,
+    "a-form-item": Form.Item,
+    "a-input": Input,
+    "a-button": Button,
   },
 
   props: {
