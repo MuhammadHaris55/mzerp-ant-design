@@ -51,48 +51,50 @@
       </div>
     </template>
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
+    <a-row>
       <div v-if="$page.props.flash.success" class="bg-green-600 text-white">
         {{ $page.props.flash.success }}
       </div>
       <!-- <jet-button @click="create" class="mt-4 ml-8">Create</jet-button> -->
 
       <!-- <div v-if="errors.type">{{ errors.type }}</div> -->
-      <form
-        target="_blank"
-        @submit.prevent="submit_trial_range"
-        v-bind:action="'trialbalance'"
-        ref="form_trial_range"
-        class="inline-block"
-      >
-        <input
-          :min="form.start"
-          :max="form.end"
-          v-model="form.date"
-          type="date"
-          label="date"
-          placeholder="Enter Begin date:"
-          class="pr-2 ml-2 pb-2 rounded-md"
-          name="date"
-          required
-        />
+    <a-col :span="12">
+        <form
+            target="_blank"
+            @submit.prevent="submit_trial_range"
+            v-bind:action="'trialbalance'"
+            ref="form_trial_range"
+            >
+            <a-input
+            :min="form.start"
+            :max="form.end"
+            v-model="form.date"
+            style="width:70%"
+            type="date"
+            label="date"
+            placeholder="Enter Begin date:"
+            class="pr-2 ml-2 pb-2 rounded-md"
+            name="date"
+            required
+            />
+            <!-- <div
+                class="
+                border
+                rounded-lg
+                shadow-md
+                p-1
+                px-4
+                m-2
+                bg-gray-800
+            text-white
+            inline-block
+            hover:bg-gray-700 hover:text-white
+            "
+            >
+            <a href="trialbalance" target="_blank">Trial Balance</a>
+        </div> -->
         <!-- <div
-        class="
-          border
-          rounded-lg
-          shadow-md
-          p-1
-          px-4
-          m-2
-          bg-gray-800
-          text-white
-          inline-block
-          hover:bg-gray-700 hover:text-white
-        "
-      >
-        <a href="trialbalance" target="_blank">Trial Balance</a>
-      </div> -->
-        <div
-          class="
+            class="
             border
             rounded-lg
             shadow-md
@@ -104,12 +106,13 @@
             ml-2
             inline-block
             hover:bg-gray-700 hover:text-white
-          "
-        >
-          <button type="submit">Trial Balance</button>
-        </div>
-      </form>
-
+            "
+            > -->
+               <Button type="primary" :disabled="form.processing" htmlType="submit">Trial Balance</Button>
+            <!-- </div> -->
+        </form>
+    </a-col>
+    <a-col :span="12">
       <form
         target="_blank"
         @submit.prevent="submit_bs_range"
@@ -117,14 +120,14 @@
         ref="form_bs_range"
         class="inline-block"
       >
-        <input
+        <a-input
           :min="form.start"
           :max="form.end"
-          v-model="form.date"
+          v-model:value="form.date"
           type="date"
           label="date"
           placeholder="Enter Begin date:"
-          class="pr-2 ml-2 pb-2 rounded-md"
+          class="ml-2"
           name="date"
           hidden
           required
@@ -145,7 +148,7 @@
       >
         <a href="bs" target="_blank">Balance Sheet</a>
       </div> -->
-        <div
+        <!-- <div
           class="
             border
             rounded-lg
@@ -159,9 +162,11 @@
             inline-block
             hover:bg-gray-700 hover:text-white
           "
-        >
-          <button type="submit">Balance Sheet</button>
-        </div>
+        > -->
+        <Button type="primary" :disabled="form.processing" htmlType="submit">Balance Sheete</Button>
+
+        <!-- <Button type="submit">Balance Sheet</Button> -->
+        <!-- </div> -->
       </form>
 
       <form
@@ -169,12 +174,12 @@
         @submit.prevent="submit_pl_range"
         v-bind:action="'pl'"
         ref="form_pl_range"
-        class="inline-block"
+        class="inline-block ml-8"
       >
-        <input
+        <a-input
           :min="form.start"
           :max="form.end"
-          v-model="form.date"
+          v-model:value="form.date"
           type="date"
           label="date"
           placeholder="Enter Begin date:"
@@ -199,7 +204,7 @@
       >
         <a href="pl" target="_blank">Profit or Loss A/C</a>
       </div> -->
-        <div
+        <!-- <div
           class="
             border
             rounded-lg
@@ -213,10 +218,14 @@
             inline-block
             hover:bg-gray-700 hover:text-white
           "
-        >
-          <button type="submit">Profit or Loss A/C</button>
-        </div>
+        > -->
+
+
+            <Button type="primary" :disabled="form.processing" htmlType="submit">Profit or Loss A/C</Button>
+        <!-- </div> -->
       </form>
+    </a-col>
+      </a-row>
     </div>
   </app-layout>
 </template>
@@ -226,7 +235,16 @@ import AppLayout from "@/Layouts/AppLayout";
 import JetButton from "@/Jetstream/Button";
 import { useForm } from "@inertiajs/inertia-vue3";
 import Multiselect from "@suadelabs/vue3-multiselect";
-import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import {
+    Table,
+    Select,
+    InputSearch,
+    Form,
+    Input,
+    Button,
+    Row,
+    Col,
+} from "ant-design-vue";
 
 export default {
   components: {
@@ -237,7 +255,15 @@ export default {
     InputSearch,
     JetButton,
     Multiselect,
-  },
+        "a-form": Form,
+        "a-form-item": Form.Item,
+        "a-input": Input,
+        "a-textarea": Input.TextArea,
+        "a-button": Button,
+        "a-select": Select,
+        "a-row": Row,
+           "a-col"    : Col,
+    },
 
   props: {
     errors: Object,

@@ -20,10 +20,9 @@
 
           <!-- <span>Option 1</span> -->
         </MenuItem>
-        <MenuItem key="2">
+        <MenuItem v-if="this.$page.props.co_id" key="2">
           <desktop-outlined />
           <jet-nav-link
-            v-if="this.$page.props.co_id"
             :href="route('years')"
             :active="route().current('years')"
           >
@@ -31,11 +30,11 @@
           </jet-nav-link>
         </MenuItem>
 
-        <MenuItem key="3">
+        <MenuItem  v-if="this.$page.props.co_id && this.$page.props.yr_id"
+                 key="3">
           <desktop-outlined />
           <jet-nav-link
-            v-if="this.$page.props.co_id && this.$page.props.yr_id"
-            :href="route('accountgroups')"
+           :href="route('accountgroups')"
             :active="route().current('accountgroups')"
           >
             Account Groups
@@ -44,10 +43,10 @@
           <!-- <span>Option 2</span> -->
         </MenuItem>
 
-        <MenuItem key="4">
+        <MenuItem v-if="this.$page.props.co_id && this.$page.props.yr_id"
+                key="4">
           <desktop-outlined />
           <jet-nav-link
-            v-if="this.$page.props.co_id && this.$page.props.yr_id"
             :href="route('accounts')"
             :active="route().current('accounts')"
           >
@@ -57,10 +56,10 @@
           <!-- <span>Option 2</span> -->
         </MenuItem>
 
-        <MenuItem key="5">
+        <MenuItem  v-if="this.$page.props.co_id && this.$page.props.yr_id"
+                key="5">
           <desktop-outlined />
           <jet-nav-link
-            v-if="this.$page.props.co_id && this.$page.props.yr_id"
             :href="route('documenttypes')"
             :active="route().current('documenttypes')"
           >
@@ -70,10 +69,10 @@
           <!-- <span>Option 2</span> -->
         </MenuItem>
 
-        <MenuItem key="6">
+        <MenuItem   v-if="this.$page.props.co_id && this.$page.props.yr_id"
+               key="6">
           <desktop-outlined />
           <jet-nav-link
-            v-if="this.$page.props.co_id && this.$page.props.yr_id"
             :href="route('documents')"
             :active="route().current('documents')"
           >
@@ -83,11 +82,11 @@
           <!-- <span>Option 2</span> -->
         </MenuItem>
 
-        <MenuItem key="7">
+        <MenuItem   v-if="this.$page.props.co_id && this.$page.props.yr_id"
+              key="7">
           <desktop-outlined />
           <jet-nav-link
             :href="route('reports')"
-            v-if="this.$page.props.co_id && this.$page.props.yr_id"
             :active="route().current('reports')"
           >
             Reports
@@ -95,11 +94,11 @@
 
           <!-- <span>Option 2</span> -->
         </MenuItem>
-        <MenuItem key="8">
+        <MenuItem v-if="this.$page.props.co_id && this.$page.props.yr_id"
+                key="8">
           <desktop-outlined />
           <jet-nav-link
             :href="route('ledgers')"
-            v-if="this.$page.props.co_id && this.$page.props.yr_id"
             :active="route().current('ledgers')"
           >
             Ledger

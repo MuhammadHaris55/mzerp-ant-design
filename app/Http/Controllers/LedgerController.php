@@ -132,8 +132,8 @@ class LedgerController extends Controller
             $date_range = Year::where('id', session('year_id'))->first();
 
             // ---------- mapping data for ant-design
-            $mapped_data_incomp = $data['entries']->map(function($entry, $key) use ($balance) {
-            return [
+            $mapped_data_incomp = $data['entries']->map(function ($entry, $key) use ($balance) {
+                return [
                     'account_id' => $entry->account_id,
                     'ref' => $entry->ref,
                     'date' => $entry->date,
@@ -147,31 +147,31 @@ class LedgerController extends Controller
 
             //first and last line which we have to show in table
             $first_arr = [
-                    'account_id' => '',
-                    'ref' => '',
-                    'date' => '',
-                    'description' => 'Opening Balance',
-                    'debit' => '',
-                    'credit' => '',
-                    'balance' => $prebal,
+                'account_id' => '',
+                'ref' => '',
+                'date' => '',
+                'description' => 'Opening Balance',
+                'debit' => '',
+                'credit' => '',
+                'balance' => $prebal,
             ];
             $last_arr = [
-                    'account_id' => '',
-                    'ref' => '',
-                    'date' => '',
-                    'description' => 'Totals',
-                    'debit' => $data['debits'],
-                    'credit' => $data['credits'],
-                    'balance' => '',
+                'account_id' => '',
+                'ref' => '',
+                'date' => '',
+                'description' => 'Totals',
+                'debit' => $data['debits'],
+                'credit' => $data['credits'],
+                'balance' => '',
             ];
             //main data to send on frontend VUE
             $mapped_data[0] = $first_arr;
             $a = 1;
-            foreach($mapped_data_incomp as $map_incomp_data)
-            {
+            foreach ($mapped_data_incomp as $map_incomp_data) {
                 $mapped_data[$a++] = $map_incomp_data;
             }
             $mapped_data[$a] = $last_arr;
+
             // ---------- mapping data for ant-design
             return Inertia::render('Ledgers/Index', [
                 'company' => Company::where('id', session("company_id"))->first(),

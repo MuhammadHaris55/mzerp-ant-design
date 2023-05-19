@@ -5,12 +5,11 @@
     </template>
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
       <div class="">
-        <a-form :form="form">
+        <a-form :form="form" @submit.prevent="submit" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
           <a-form-item label="Name">
             <a-input
               v-model:value="form.name"
               placeholder="Enter your name"
-              style="width: 50%"
             />
 
             <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
@@ -22,7 +21,6 @@
             <a-tree-select
               v-model:value="form.group"
               :disabled="true"
-              style="width: 50%"
               :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
               :tree-data="option"
               :field-names="{ label: 'name', value: 'id' }"
@@ -32,7 +30,7 @@
             >
             </a-tree-select>
           </a-form-item>
-          <a-form-item>
+          <a-form-item class="text-right">
             <a-button type="primary" @click="submit()">Submit</a-button>
           </a-form-item>
         </a-form>

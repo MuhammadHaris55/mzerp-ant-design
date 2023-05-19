@@ -10,41 +10,37 @@
     </div>
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
       <div class="">
-        <form @submit.prevent="form.post(route('accountgroups.store'))">
-          <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold">Name :</label>
-            <input
-              type="text"
-              v-model="form.name"
-              class="
-                pr-2
-                pb-2
-                w-full
-                lg:w-1/4
-                rounded-md
-                placeholder-indigo-300
-              "
-              label="name"
-              placeholder="Group name:"
-            />
-            <div
-              class="
-                ml-2
-                bg-red-100
-                border border-red-400
-                text-red-700
-                px-4
-                py-2
-                rounded
-                relative
-              "
-              role="alert"
-              v-if="errors.name"
-            >
-              {{ errors.name }}
-            </div>
-          </div>
-          <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
+           <a-form @submit.prevent="form.post(route('accountgroups.store'))" :label-col="{ span: 4 }"
+                      :wrapper-col="{ span: 14 }">
+                      <a-form-item label="Name">
+                          <a-input v-model:value="form.name" placeholder="Enter your name" />
+                          <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
+                              {{ errors.name }}
+                          </div>
+                      </a-form-item>
+                       <a-form-item label="Account Type :">
+                        <a-select v-model:value="form.type_id" show-search filterOption="true" optionFilterProp="name" :options="types"  @change="account_type_ch"
+                                :field-names="{ label: 'name', value: 'id' }" mode="single"
+                                placeholder="Please select" showArrow class="w-full" />
+                       </a-form-item>
+                       <a-form-item label="Account Group :">
+                            <treeselect
+                            size="small"
+                            v-model="form.parent_id"
+                            showSearch
+                            max-height="150"
+                            :multiple="false"
+                            :options="data"
+                            :normalizer="normalizer"
+                            v-on:select="treeChange"
+                            />
+                            <!-- style="max-width: 300px" -->
+                       </a-form-item>
+                        <a-form-item class="text-right">
+                            <a-button type="primary" :disabled="form.processing" htmlType="submit">Submit</a-button>
+                        </a-form-item>
+
+          <!-- <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
             <label class="my-2 mr-8 text-right w-36 font-bold"
               >Account Type :</label
             >
@@ -60,8 +56,8 @@
               </option>
             </select>
             <div v-if="errors.type_id">{{ errors.type_id }}</div>
-          </div>
-          <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
+          </div> -->
+          <!-- <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
             <label class="my-2 mr-8 text-right w-36 font-bold"
               >Account Group :</label
             >
@@ -74,9 +70,9 @@
               v-on:select="treeChange"
               style="max-width: 300px"
             />
-          </div>
+          </div> -->
 
-          <div class="px-4 py-2 flex justify-center items-center">
+          <!-- <div class="px-4 py-2 flex justify-center items-center">
             <button
               class="
                 border
@@ -96,8 +92,8 @@
             >
               Create Account Group
             </button>
-          </div>
-        </form>
+          </div> -->
+        </a-form>
       </div>
     </div>
   </app-layout>
@@ -109,10 +105,25 @@ import AppLayout from "@/Layouts/AppLayout";
 import { useForm } from "@inertiajs/inertia-vue3";
 import Treeselect from "vue3-treeselect";
 import "vue3-treeselect/dist/vue3-treeselect.css";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  DatePicker,
+} from "ant-design-vue";
 export default {
   components: {
     AppLayout,
     Treeselect,
+    "a-form": Form,
+    "a-form-item": Form.Item,
+    "a-input": Input,
+    "a-textarea": Input.TextArea,
+    "a-button": Button,
+    "a-select": Select,
+    "a-option": Select.Option,
+    "a-datePicker": DatePicker,
   },
   props: {
     errors: Object,
@@ -127,6 +138,7 @@ export default {
       isError: null,
       form: this.$inertia.form({
         name: this.name,
+
         type_id: this.first.id,
         parent_id: null,
       }),
@@ -149,3 +161,11 @@ export default {
   },
 };
 </script>
+
+<style>
+.vue-treeselect__control{
+    border-radius: 0px;
+    height: 31px;
+}
+
+</style>
