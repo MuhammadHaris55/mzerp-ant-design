@@ -15,9 +15,9 @@
                         :wrapper-col="{ span: 14 }">
               <a-select
                 v-model:value="form.type_id"
-                show-search
                 :options="doc_"
                 :field-names="{ label: 'name', value: 'id' }"
+                show-search
                 filterOption="true"
                 optionFilterProp="name"
                 mode="single"
@@ -169,34 +169,13 @@
                 </tr>
               </tbody>
             </table>
-            <!-- <div class="flex justify-start items-start">
-              <button
-                class="
-                  border
-                  bg-indigo-300
-                  rounded-xl
-                  px-4
-                  py-2
-                  m-4
-                  hover:text-white hover:bg-indigo-400
-                "
-                @click.prevent="addRow"
-              >
-                Add row
-              </button>
-            </div> -->
+
             <div v-if="isError">{{ firstError }}</div>
           </div>
           <!-- TABLE FOR ENTRIES ---- END ------------- -->
           <div class="px-4 py-2 flex justify-center items-center">
              <a-button type="primary" :disabled="form.processing" htmlType="submit">  Create Transaction
             </a-button>
-            <!-- <a-button
-              type="submit"
-              :disabled="form.processing"
-            >
-              Create Transaction
-            </a-button> -->
           </div>
         </form>
       </div>
@@ -255,37 +234,17 @@ export default {
       debit: 0,
       total: 0,
       isError: null,
-      //   form: this.$inertia.form({
-      //     type_id: this.doc_type_first.id,
-      //     date: null,
-      //   description: null,
-
-      //     entries: [
-      //       {
-      //         account_id: this.accounts[0].id,
-      //         debit: 0,
-      //         credit: 0,
-      //       },
-      //       {
-      //         account_id: this.accounts[1].id,
-      //         debit: 0,
-      //         credit: 0,
-      //       },
-      //     ],
-      //   }),
     };
   },
 
   setup(props) {
     const form = useForm({
-      // type_id: props.doc_types[0].id,
       type_id: props.doc_types[0].id,
       date: null,
       description: null,
 
       entries: [
         {
-          // account_id: props.account_first.id,
           account_id: props.accounts[0].id,
           debit: 0,
           credit: 0,
@@ -311,13 +270,6 @@ export default {
     func() {
       alert("Please fill all Input fields Diffrence not equal to 0");
     },
-    // submit() {
-    //   if (this.difference === 0) {
-    //     this.$inertia.post(route("documents.store"), this.form);
-    //   } else {
-    //     alert("Entry is not equal");
-    //   }
-    // },
     //ON CHANGE FUNCTION ON DEBIT CREDIT TO NULL THE PARALLEL VALUES ---START ----
     debitchange(index) {
       let a = this.form.entries[index];

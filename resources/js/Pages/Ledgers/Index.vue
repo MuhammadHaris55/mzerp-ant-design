@@ -4,8 +4,9 @@
             <div class="grid grid-cols-2">
                 <h2 class="font-semibold text-lg text-white p-4">Ledgers</h2>
                 <div class="flex justify-end items-center">
-                    <Select v-model:value="selected" :options="options" :field-names="{ label: 'name', value: 'id' }"
-                        filterOption="true" optionFilterProp="name" mode="single" placeholder="Please select" showArrow
+                    <Select v-model:value="selected" show-search
+                    filterOption="true"
+                    optionFilterProp="name" :options="options" :field-names="{ label: 'name', value: 'id' }" mode="single" placeholder="Please select" showArrow
                         @change="coch" class="w-1/2" />
                 </div>
             </div>
@@ -135,17 +136,6 @@ export default {
                 {
                     title: "Reference",
                     dataIndex: "ref",
-                    // sorter: (a, b) => {
-                    //     const nameA = a.name.toUpperCase();
-                    //     const nameB = b.name.toUpperCase();
-                    //     if (nameA < nameB) {
-                    //         return -1;
-                    //     }
-                    //     if (nameA > nameB) {
-                    //         return 1;
-                    //     }
-                    //     return 0;
-                    //     },
                     width: "20%",
                 },
                 {
@@ -170,17 +160,6 @@ export default {
                 },
             ],
 
-            //   form: this.$inertia.form({
-            //     account_id: this.account_first.id,
-            //     date_start: null,
-            //     date_end: null,
-            //   }),
-
-            //   form: this.$refs.form({
-            //     account_id: this.account_first.id,
-            //     date_start: "null",
-            //     date_end: null,
-            //   }),
 
             form: {
                 account_id: this.account_first ? this.account_first['id'] : this.accounts,
@@ -192,18 +171,9 @@ export default {
                 end: this.max_end
                     ? this.max_end
                     : new Date().toISOString().substr(0, 10),
-                // end: new Date().toISOString().substr(0, 10),
             },
         };
     },
-    //   setup(props) {
-    //     const form = useForm({
-    //       account_id: props.account_first.id,
-    //       date_start: null,
-    //       date_end: "",
-    //     });
-    //     return { form };
-    //   },
 
     methods: {
         // ------------------------- To generate PDF ------------------------
@@ -221,32 +191,16 @@ export default {
         submit: function () {
             this.$refs.form.submit();
         },
-        // submit() {
-        //   //   entries = this.entries;
-        //   //   if (this.difference === 0) {
-        //   this.form.post(route("range"));
-        //   //   this.$inertia.get(route("range"), this.form);
-        //   //   } else {
-        //   //     alert("Entry is not equal");
-        //   //   }
-        // },
 
         create() {
             this.$inertia.get(route("years.create"));
         },
 
-        // route() {
-        //   this.$inertia.post(route("range"), this.form);
-        //   //   this.$inertia.get(route("range"));
-        // },
-
         route() {
-            // this.$inertia.post(route("companies.store"), this.form);
             this.$inertia.get(route("pd"));
         },
 
         route() {
-            // this.$inertia.post(route("companies.store"), this.form);
             this.$inertia.get(route("trialbalance"));
         },
 

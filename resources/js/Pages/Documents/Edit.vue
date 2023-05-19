@@ -6,11 +6,6 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
       <div class="">
         <form @submit.prevent="submit">
-          <!--
-        @submit.prevent="
-          this.difference == 0 ? form.post(route('documents.store')) : ''
-        "
-        -->
           <!-- DOCUMENT TYPE ID -->
            <a-form-item label="Select Voucher :" :label-col="{ span: 4 }"
                             :wrapper-col="{ span: 14 }">
@@ -34,28 +29,6 @@
                     />
                  </a-form-item>
 
-          <!-- <div class="p-2 mr-2 mb-2 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Select Voucher :</label
-            >
-            <input
-              type="text"
-              v-model="document.type_name"
-              disabled
-              class="
-                disabled:opacity-50
-                pr-2
-                pb-2
-                w-full
-                lg:w-1/4
-                rounded-md
-                placeholder-indigo-300
-              "
-              label="ref"
-              placeholder="Enter Voucher"
-            />
-            <div v-if="errors.type">{{ errors.type }}</div>
-          </div> -->
           <!-- DESCRIPTION -->
             <a-form-item label="Description :" :label-col="{ span: 4 }"
                         :wrapper-col="{ span: 14 }">
@@ -67,42 +40,6 @@
             </a-form-item>
 
           <!-- DESCRIPTION -->
-          <!-- <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Description :</label
-            ><input
-              type="text"
-              v-model="form.description"
-              class="
-                disabled:opacity-50
-                pr-2
-                pb-2
-                w-full
-                lg:w-1/4
-                rounded-md
-                placeholder-indigo-300
-              "
-              label="description"
-              placeholder="Enter Description"
-              :disabled="can['edit'] ? disabled : ''"
-            />
-            <div
-              class="
-                ml-2
-                bg-red-100
-                border border-red-400
-                text-red-700
-                px-4
-                py-2
-                rounded
-                relative
-              "
-              role="alert"
-              v-if="errors.description"
-            >
-              {{ errors.description }}
-            </div>
-          </div> -->
           <!-- DATE -->
 
             <a-form-item label="Select Date :" :label-col="{ span: 4 }"
@@ -127,23 +64,6 @@
             </a-form-item>
 
 
-          <!-- <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
-            <label class="my-2 mr-8 text-right w-36 font-bold"
-              >Select Date :</label
-            ><input
-              type="date"
-              v-model="form.date"
-              class="pr-2 pb-2 rounded-md placeholder-indigo-300"
-              label="date"
-              placeholder="Date:"
-              name="date"
-              :min="form.start"
-              :max="form.end"
-              :disabled="can['edit'] ? disabled : ''"
-            />
-
-            <div v-if="errors.date">{{ errors.date }}</div>
-          </div> -->
           <!-- TABLE FOR ENTRIES ---- START ------------- -->
           <div class="panel-body flex justify-center items-start">
             <table class="table flex">
@@ -156,12 +76,11 @@
               </thead>
               <tbody>
                 <tr v-for="(entry, index) in form.entries" :key="entry.id">
-                  <!-- <tr v-for="(entry, index) in entries" :key="entry.id"> -->
                   <td>
                     <a-select
                     style="width:100%"
                     show-search
-                    v-model:value="entry.account_id.id"
+                    v-model:value="entry.account_id"
                     :options="option"
                     :field-names="{ label: 'name', value: 'id' }"
                     filterOption="true"
@@ -171,24 +90,7 @@
                     :disabled="can['edit'] ? disabled : ''"
                     showArrow
                     />
-                    <!-- <multiselect
-                      class="w-full rounded-md border border-black"
-                      v-model="entry.account_id"
-                      :options="option"
-                      placeholder="Select account"
-                      label="name"
-                      track-by="id"
-                      :disabled="can['edit'] ? disabled : ''"
-                    ></multiselect> -->
-                    <!-- <select v-model="entry.account_id" class="rounded-md w-36">
-                      <option
-                        v-for="account in accounts"
-                        :key="account.id"
-                        :value="account.id"
-                      >
-                        {{ account.name }}
-                      </option>
-                    </select> -->
+
                   </td>
                   <td>
                      <a-input
@@ -201,13 +103,6 @@
                         <div class="text-red-700 px-4" role="alert" v-if="errors['entries.' + index + '.account_id']">
                             {{ ' - ' }}
                         </div>
-                    <!-- <input
-                      v-model="entry.debit"
-                      type="number"
-                      @change="debitchange(index)"
-                      class="rounded-md w-36"
-                      :disabled="can['edit'] ? disabled : ''"
-                    /> -->
                   </td>
                   <td>
                        <a-input
@@ -220,13 +115,6 @@
                         <div class="text-red-700 px-4" role="alert" v-if="errors['entries.' + index + '.account_id']">
                         {{ ' - ' }}
                         </div>
-                    <!-- <input
-                      v-model="entry.credit"
-                      type="number"
-                      @change="creditchange(index)"
-                      class="rounded-md w-36"
-                      :disabled="can['edit'] ? disabled : ''"
-                    /> -->
                   </td>
                   <td>
                     <a-button
@@ -246,7 +134,6 @@
                     >
                       Add row
                     </a-button>
-                    <!-- <div v-if="isError">{{ firstError }}</div> -->
                   </td>
                 </tr>
 
@@ -294,25 +181,6 @@
             v-if="can['edit']"
             class="px-4 py-2 flex justify-center items-center"
           >
-            <!-- <a-button
-              class="
-                border
-                rounded-xl
-                shadow-md
-                p-1
-                px-4
-                mt-4
-                bg-gray-800
-                text-white
-                ml-2
-                inline-block
-                hover:bg-gray-700 hover:text-white
-              "
-
-              type="submit"
-            >
-              Update Transaction
-            </a-button> -->
              <a-button type="primary" :disabled="form.processing" @click="submit()">  Update Transaction</a-button>
 
           </div>
@@ -324,8 +192,6 @@
 
 <script>
 import AppLayout from "@/Layouts/AppLayout";
-import { useForm } from "@inertiajs/inertia-vue3";
-// import Label from "../../Jetstream/Label.vue";
 import Datepicker from "vue3-datepicker";
 import format from "date-fns/format";
 import Multiselect from "@suadelabs/vue3-multiselect";
@@ -452,7 +318,7 @@ export default {
           this.form.entries[i].debit == 0
         ) {
           this.difference = null;
-          alert("Please fill debit OR credit field of a Transaction");
+        //   alert("Please fill debit OR credit field of a Transaction");
         }
       }
     },
@@ -461,7 +327,7 @@ export default {
     addRow() {
       this.form.entries.push({
         // account_id: this.account_first.id,
-        account_id: this.accounts[0],
+        account_id: this.accounts[0].id,
         debit: 0,
         credit: 0,
       });
@@ -478,22 +344,7 @@ export default {
       //   this.debitchange(index);
     },
   },
-  mount: {
-    // tcredit() {
-    //   let dtotal = 0;
-    //   for (var i = 0; i < this.form.entries.length; i++) {
-    //     dtotal = dtotal + parseInt(this.form.entries[i].credit);
-    //   }
-    //   this.credit = dtotal;
-    // },
-    // tdebit() {
-    //   let dtotal = 0;
-    //   for (var i = 0; i < this.form.entries.length; i++) {
-    //     dtotal = dtotal + parseInt(this.form.entries[i].debit);
-    //   }
-    //   this.debit = dtotal;
-    // },
-  },
+
   watch: {
     //  FOR DIFFERENCE OF DEBIT CREDIT ---START -----
     debit: function () {

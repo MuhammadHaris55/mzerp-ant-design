@@ -32,10 +32,8 @@ class DocumentController extends Controller
         $doc_ty = DocumentType::where('company_id', session('company_id'))->first();
 
         $yearclosed = year::where('id', session('year_id'))->where('closed', 0)->first();
-
         if ($acc && $doc_ty) {
 
-            // ['select', 'search']
             if (request()->has('search')) {
                 $search_word = $req->search;
                 $obj_data = Document::select("*")
@@ -55,6 +53,7 @@ class DocumentController extends Controller
                             ->where('year_id', session('year_id'))
                             ->where('date', 'LIKE', '%' . $search_word . '%');
                     })->get();
+
                 $mapped_data = $obj_data->map(function ($document, $key) {
                     return [
                         'id' => $document->id,
@@ -88,7 +87,6 @@ class DocumentController extends Controller
                     ];
                 });
             }
-
             return Inertia::render(
                 'Documents/Index',
                 [
@@ -193,21 +191,9 @@ class DocumentController extends Controller
             'entries.*.credit' => 'required_without:entries.*.debit|numeric',
 
         ]);
-        // Request::validate([
-        //     'type_id' => ['required'],
-        //     'description' => ['required'],
-        //     'date' => ['required', 'date'],
-        //     'entries.*.account_id' => 'required|integer',
-        //     'entries.*.debit' => 'required|numeric|min:0',
-        //     'entries.*.credit' => 'required|numeric|min:0',
-        // ]);
-
-        dd($request->all());
-
         DB::transaction(function () use ($request) {
             $date = new Carbon($request->date);
             try {
-
                 $prefix = DocumentType::where('company_id', session('company_id'))->where('id', $request->type_id)->first()->prefix;
                 $date = $date->format('Y-m-d');
                 $ref_date_parts = explode("-", $date);
@@ -228,7 +214,7 @@ class DocumentController extends Controller
                 $reference = $prefix . "/" . $ref_date_parts[0] . "/" . $ref_date_parts[1] . "/" . $serial;
 
                 $doc = Document::create([
-                    'type_id' => Request::input('type_id')['id'],
+                    'type_id' => Request::input('type_id'),
                     'company_id' => session('company_id'),
                     'description' => Request::input('description'),
                     'ref' => $reference,
@@ -239,8 +225,8 @@ class DocumentController extends Controller
                 foreach ($data as $entry) {
                     Entry::create([
                         'company_id' => $doc->company_id,
-                        'account_id' => $entry['account_id']['id'],
                         'year_id' => $doc->year_id,
+                        'account_id' => $entry['account_id'],
                         'document_id' => $doc->id,
                         'debit' => $entry['debit'],
                         'credit' => $entry['credit'],
@@ -248,7 +234,6 @@ class DocumentController extends Controller
                 }
             } catch (Exception $e) {
                 return back()->with('error', $e);
-                return $e;
             }
         });
 
@@ -279,7 +264,7 @@ class DocumentController extends Controller
                     "id" => $entry->id,
                     "company_id" => $entry->company_id,
                     "document_id" => $entry->document_id,
-                    "account_id" => $entry->account,
+                    "account_id" => $entry->account->id,
                     "year_id" => $entry->year_id,
                     "debit" => $entry->debit,
                     "credit" => $entry->credit,
@@ -329,19 +314,19 @@ class DocumentController extends Controller
     }
 
     // public function update(Document $document)
-    public function update(
-        Req $request,
-        Document $document
-        // Entry $entry
-    ) {
-        Request::validate([
-            'type_id' => ['required'],
-            'description' => ['required'],
-            'date' => ['required', 'date'],
+    public function update(Req $request, Document $document)
+    // Entry $entry
+    {
 
-            'entries.*.account_id' => ['required'],
-            'entries.*.debit' => ['required'],
-            'entries.*.credit' => ['required'],
+        $validatedData = $request->validate([
+            'type_id' => 'required',
+            'date' => 'required|date',
+            'description' => 'required',
+            'entries' => ['required', 'array', new UniqueAccountIds],
+            'entries.*.account_id' => 'required',
+            'entries.*.debit' => 'required_without:entries.*.credit|numeric',
+            'entries.*.credit' => 'required_without:entries.*.debit|numeric',
+
         ]);
 
         $preEntries = Entry::all()->where('document_id', $document->id);
@@ -379,7 +364,7 @@ class DocumentController extends Controller
                     Entry::create([
                         // 'company_id' => $document->company_id,
                         'company_id' => session('company_id'),
-                        'account_id' => $entry['account_id']['id'],
+                        'account_id' => $entry['account_id'],
                         'year_id' => session('year_id'),
                         // 'year_id' => $document->year_id,
                         'document_id' => $document->id,
@@ -424,7 +409,6 @@ class DocumentController extends Controller
 
     public function downloadFile()
     {
-        // dd(public_path() . "/sales_trial.xlsx");
         return response()->download(public_path() . "/sales_trial.xlsx");
     }
 
@@ -439,7 +423,6 @@ class DocumentController extends Controller
                     // 'acc_grp' => $account->accountGroup->name,
                 ];
             });
-        // dd($accounts);
         if ($accounts) {
 
             $year = Year::where('company_id', session('company_id'))
@@ -448,16 +431,6 @@ class DocumentController extends Controller
 
             $names = str_replace(["&"], "&amp;", $year->company->name);
             $endDate = $end->format("F j Y");
-            //     //   $a = "hello world";
-
-            //     $confirmation = BankConfirmation::where('company_id', session('company_id'))->get()
-            //     ->map(function ($confirm){
-            //         return[
-            //             'id' => $confirm->id,
-            //             'branch' => $confirm->bankBranch->bank->name . " - " . $confirm->bankBranch->address,
-            //         ];
-            //     });
-            //     // dd($confirmation);
 
 
             $pdf = app('dompdf.wrapper');

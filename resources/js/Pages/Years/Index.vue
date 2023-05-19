@@ -25,7 +25,7 @@
                                 class="mr-2">Edit</Button>
                             <Button class="mr-2" size="small" v-if="record.delete && can['delete']" danger
                                 @click="destroy(record.id)">Delete</Button>
-                            <Button size="small" v-if="record.closed == 0" type="primary" @click="close(record.id)">Close
+                            <Button size="small" v-if="record.closed == 0" type="primary" ghost @click="close(record.id)">Close
                                 Fiscal</Button>
                         </template>
                     </template>

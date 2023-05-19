@@ -4,25 +4,7 @@
       <div class="grid grid-cols-2">
         <h2 class="font-semibold text-lg text-white p-4">Transactions</h2>
         <div class="justify-end">
-          <!-- <select
-            v-model="yr_id"
-            class="
-              pr-2
-              ml-2
-              pb-2
-              text-gray-700
-              w-full
-              lg:w-5/12
-              rounded-md
-              float-right
-            "
-            label="year"
-            @change="yrch"
-          >
-            <option v-for="type in years" :key="type.id" :value="type.id">
-              {{ type.name }}
-            </option>
-          </select> -->
+
           <Select
             v-model:value="selected_year"
             :options="years"
@@ -141,16 +123,7 @@
           </a>
         </form>
       </div>
-      <!-- class="pr-2 ml-2 pb-2 w-full lg:w-1/4 rounded-md float-right" -->
 
-      <!-- class="pr-2 ml-2 pb-2 w-full lg:w-1/4 rounded-md" -->
-
-      <!--   <div v-if="errors.type">{{ errors.type }}</div> -->
-
-      <!-- <div v-if="errors.type">{{ errors.type }}</div> -->
-      <!-- </div> -->
-      <!-- <div class="w-full px-8"> -->
-      <!-- ml-8 mr-8 -->
       <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
         <Table
           :columns="columns"
